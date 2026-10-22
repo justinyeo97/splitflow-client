@@ -1,53 +1,26 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+﻿import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../features/auth/AuthProvider.jsx'
 
-const navigation = [
-  { label: 'Workspace', items: [
-    ['Dashboard', '/', '◫'],
-    ['Expenses', '/expenses', '↗'],
-    ['Imports', '/imports', '⇧'],
-  ] },
-  { label: 'Directory', items: [
-    ['Consultants', '/consultants', '◎'],
-    ['Countries', '/countries', '⌖'],
-  ] },
-  { label: 'Finance', items: [
-    ['Conversions & exceptions', '/conversions', '⇄'],
-    ['Reports & reconciliation', '/reports', '▤'],
-    ['Placements', '/placements', '◇'],
-  ] },
+const links = [
+  ['Overview', '/', '01'], ['Expenses', '/expenses', '02'],
+  ['Imports', '/imports', '03'], ['Consultants', '/consultants', '04'],
+  ['Countries', '/countries', '05'], ['Conversions', '/conversions', '06'],
+  ['Reports', '/reports', '07'], ['Placements', '/placements', '08'],
 ]
 
-function AppShell() {
-  const location = useLocation()
+export default function AppShell() {
+  const { pathname } = useLocation()
   const { user, signOut } = useAuth()
-  const activeTitle = navigation.flatMap(group => group.items).find(([, path]) => path === location.pathname)?.[0] || 'Dashboard'
-
-  return (
-    <div className="app-frame">
-      <aside className="sidebar" aria-label="Main navigation">
-        <a className="brand" href="/" aria-label="Splitflow home">
-          <span className="brand-mark">S</span>
-          <span className="brand-name">splitflow<span>.</span><small>FINANCE OPERATIONS</small></span>
-        </a>
-        <div className="workspace-selector"><span className="workspace-icon">S</span><span><strong>Your workspace</strong><small>Regional workspace</small></span><span className="selector-chevron">⌄</span></div>
-        <nav className="nav-groups">
-          {navigation.map(group => <div className="nav-group" key={group.label}>
-            <p className="nav-label">{group.label}</p>
-            {group.items.map(([label, path, icon]) => <NavLink end={path === '/'} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} key={path} to={path}>
-              <span className="nav-icon" aria-hidden="true">{icon}</span><span>{label}</span>
-            </NavLink>)}
-          </div>)}
-        </nav>
-        <div className="sidebar-bottom"><div className="connection-indicator"><span /> API integration in progress</div><div className="profile"><div className="avatar">{(user?.email || 'U').slice(0, 1).toUpperCase()}</div><div className="profile-identity"><strong>{user?.email || 'Signed-in user'}</strong><small>Authenticated</small></div><button className="profile-menu" aria-label="Sign out" onClick={signOut}>↪</button></div></div>
-      </aside>
-      <div className="main-column">
-        <header className="topbar"><button className="mobile-brand" aria-label="Splitflow">S</button><div className="breadcrumb">Splitflow <span>/</span> <strong>{activeTitle}</strong></div><div className="topbar-right"><span className="environment-pill"><i /> Development</span><button className="help-button" aria-label="Help">?</button></div></header>
-        <main><Outlet /></main>
-        <footer className="page-footer"><span>Centralized costs. Transparent allocations. Consolidated reporting.</span><span>Splitflow <b>·</b> Finance operations</span></footer>
-      </div>
-    </div>
-  )
+  return <div className="workspace-frame">
+    <div className="utility-strip"><span>ONE WORKSPACE. EVERY MARKET.</span><span>Splitflow / Finance operations</span></div>
+    <header className="workspace-header">
+      <NavLink className="brand" to="/" aria-label="Splitflow home"><span className="brand-mark">s<span>.</span></span><span className="brand-name">splitflow<span>.</span><small>GLOBAL FINANCE, CONNECTED</small></span></NavLink>
+      <div className="header-caption">Built for a world<br/><strong>that works together.</strong></div>
+      <div className="account-controls"><span className="account-avatar">{(user?.email || 'U').slice(0,1).toUpperCase()}</span><span className="account-email">{user?.email}</span><button className="signout-button" onClick={signOut}>Sign out <span aria-hidden="true">↗</span></button></div>
+    </header>
+    <nav className="workspace-nav" aria-label="Main navigation">{links.map(([label,path,number])=><NavLink key={path} to={path} end={path==='/'} className={({isActive})=>`workspace-nav-link${isActive?' active':''}`}><span className="nav-number" aria-hidden="true">{number}</span>{label}</NavLink>)}</nav>
+    {pathname==='/' && <section className="workspace-hero"><div className="hero-copy"><p className="hero-kicker"><span/> CONNECTED FINANCE. CLEARER DECISIONS.</p><h1>Your global costs.<br/><span>One clear picture.</span></h1><p>Bring your people, expenses, and markets together. Make every allocation count.</p><NavLink to="/expenses" className="hero-action">Explore expenses <span aria-hidden="true">↗</span></NavLink></div><div className="orbit-art" aria-hidden="true"><div className="orbit-globe"><i/><i/><i/></div><span className="orbit-label orbit-label-top">PEOPLE</span><span className="orbit-label orbit-label-bottom">MARKETS</span><span className="orbit-dot"/><span className="orbit-center">s.</span></div><span className="hero-index" aria-hidden="true">01 / GLOBAL PERSPECTIVE</span></section>}
+    <main className="workspace-main"><Outlet/></main>
+    <footer className="workspace-footer"><NavLink to="/" className="footer-wordmark">splitflow<span>.</span></NavLink><span>Centralized costs. Transparent allocations.<br/>A shared perspective across every market.</span><span className="footer-caption">FINANCE THAT MOVES WITH YOU <span aria-hidden="true">↗</span></span></footer>
+  </div>
 }
-
-export default AppShell

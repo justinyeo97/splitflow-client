@@ -5,6 +5,16 @@ import SignInPage from './features/auth/SignInPage.jsx'
 import ProtectedRoute from './features/auth/ProtectedRoute.jsx'
 import CountriesPage from './features/countries/CountriesPage.jsx'
 import ConsultantsPage from './features/consultants/ConsultantsPage.jsx'
+import { DashboardPage, ExpensesPage, ImportsPage, ConversionsPage, ReportsPage, PlacementsPage } from './features/operations/OperationsPages.jsx'
+
+const livePages = {
+  '/': DashboardPage,
+  '/expenses': ExpensesPage,
+  '/imports': ImportsPage,
+  '/conversions': ConversionsPage,
+  '/reports': ReportsPage,
+  '/placements': PlacementsPage,
+}
 
 const pages = [
   { path: '/', title: 'Dashboard' },
@@ -23,14 +33,19 @@ function App() {
       <Route path="/sign-in" element={<SignInPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
-          {pages.map(({ path, title }) => (
-            <Route key={path} path={path} element={path === '/countries' ? <CountriesPage /> : path === '/consultants' ? <ConsultantsPage /> : <Page title={title} />} />
-          ))}
+          {pages.map(({ path, title }) => <Route key={path} path={path} element={routeContent(path, title)} />)}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Route>
     </Routes>
   )
+}
+
+function routeContent(path, title) {
+  if (path === '/countries') return <CountriesPage />
+  if (path === '/consultants') return <ConsultantsPage />
+  const Component = livePages[path]
+  return Component ? <Component /> : <Page title={title} />
 }
 
 function Page({ title }) {

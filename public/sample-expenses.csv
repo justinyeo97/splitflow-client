@@ -1,0 +1,6 @@
+consultant_external_id,transaction_date,original_amount,original_currency,category,vendor,source_identifier,description
+REPLACE_WITH_EXISTING_CONSULTANT_ID,2026-01-15,128.40,MYR,Travel,City Transit,DEMO-W1-001,Sample local transit expense
+REPLACE_WITH_EXISTING_CONSULTANT_ID,2026-01-16,86.25,MYR,Meals,North Cafe,DEMO-W1-002,Sample team meal
+REPLACE_WITH_EXISTING_CONSULTANT_ID,2026-01-17,245.00,USD,Software,Cloud Tools,DEMO-W1-003,Sample monthly software expense
+REPLACE_WITH_EXISTING_CONSULTANT_ID,2026-01-18,42.00,MYR,Travel,City Transit,DEMO-W1-001,Repeated source ID to exercise duplicate detection
+UNKNOWN-DEMO-CONSULTANT,2026-01-19,75.00,SGD,Travel,Airport Rail,DEMO-W1-004,Unknown consultant to exercise rejected row handling

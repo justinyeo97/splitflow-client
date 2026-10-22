@@ -14,7 +14,7 @@ export function useApiList(path, token, limit = 50) {
     let current = true
     setLoading(true)
     setError(null)
-    apiRequest(`${path}?limit=${limit}&offset=${offset}`, { token })
+    apiRequest(`${path}${path.includes('?') ? '&' : '?'}limit=${limit}&offset=${offset}`, { token })
       .then(result => {
         if (!current) return
         setData(result?.data || [])
