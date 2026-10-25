@@ -1,6 +1,6 @@
 import ProximityHeading from './ProximityHeading.jsx'
-export function LoadingState({ label = 'Loading data…' }) {
-  return <div className="state-card" role="status"><span className="spinner" aria-hidden="true" /><span>{label}</span></div>
+export function LoadingState() {
+  return <div className="state-card" role="status"><span className="spinner" aria-hidden="true" /><span>Loading</span></div>
 }
 
 export function ErrorState({ title = 'Could not load data', message, onRetry }) {

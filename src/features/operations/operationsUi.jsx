@@ -52,13 +52,13 @@ function StableListResult({ list, title, columns, children }) {
     <div style={{ visibility: list.loading ? 'hidden' : undefined }} aria-hidden={list.loading || undefined}>
       {list.error ? <ErrorState title={title} message={list.error.message} onRetry={list.refresh} /> : list.data.length ? <><Table columns={columns}>{children}</Table><Pager list={list} /></> : <div className="table-empty">No records yet.</div>}
     </div>
-    {list.loading && <div className="stable-list-loading"><LoadingState label="Loading expenses..." /></div>}
+    {list.loading && <div className="stable-list-loading"><LoadingState /></div>}
   </div>
 }
 function ListResult({ list, title, columns, children, preserveHeight = false }) {
   if (preserveHeight) return <StableListResult list={list} title={title} columns={columns}>{children}</StableListResult>
   if (list.error) return <ErrorState title={title} message={list.error.message} onRetry={list.refresh} />
-  if (list.loading) return <LoadingState label={`Loading ${title.toLowerCase()}…`} />
+  if (list.loading) return <LoadingState />
   if (!list.data.length) return <div className="table-empty">No records yet.</div>
   return <>{<Table columns={columns}>{children}</Table>}<Pager list={list} /></>
 }
