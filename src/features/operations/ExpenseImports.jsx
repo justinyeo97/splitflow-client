@@ -33,7 +33,7 @@ export default function ExpenseImports({ onImported }) {
       const result = await apiRequest('imports/expenses', { method: 'POST', token, headers: { 'Content-Type': 'text/csv', 'X-Filename': file.name }, body: csv })
       const id = result.data.id || ''
       setBatchId(id)
-      setNotice(`Import finished: ${result.data.accepted} accepted, ${result.data.rejected} rejected, ${result.data.duplicates} duplicates. The expense ledger has been refreshed; active date filters still apply.`)
+      setNotice(`Import finished: ${result.data.accepted} accepted, ${result.data.rejected} rejected, ${result.data.duplicates} duplicates. ${result.data.conversions_finalized || 0} converted automatically; ${result.data.conversions_pending || 0} pending conversion. The expense ledger has been refreshed; active date filters still apply.`)
       onImported()
       if (id) await loadBatch(id)
     } catch (err) { setError(err.message) }

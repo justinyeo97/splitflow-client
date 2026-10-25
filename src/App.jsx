@@ -3,6 +3,7 @@ import AppShell from './layouts/AppShell.jsx'
 import { EmptyState } from './components/States.jsx'
 import SignInPage from './features/auth/SignInPage.jsx'
 import ProtectedRoute from './features/auth/ProtectedRoute.jsx'
+import UserPage from './features/auth/UserPage.jsx'
 import CountriesPage from './features/countries/CountriesPage.jsx'
 import ConsultantsPage from './features/consultants/ConsultantsPage.jsx'
 import { DashboardPage, ExpensesPage, ConversionsPage, ReportsPage, PlacementsPage } from './features/operations/OperationsPages.jsx'
@@ -31,6 +32,7 @@ function App() {
       <Route path="/sign-in" element={<SignInPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
+          <Route path="/account" element={<UserPage />} />
           <Route path="/imports" element={<Navigate to="/expenses?import=1" replace />} />
           {pages.map(({ path, title }) => <Route key={path} path={path} element={routeContent(path, title)} />)}
           <Route path="*" element={<Navigate to="/" replace />} />

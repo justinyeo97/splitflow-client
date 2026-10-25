@@ -23,3 +23,18 @@ body{background:var(--wash)}button,input,select{font-family:inherit}button,a,inp
 .roi-guide summary{cursor:pointer;font-weight:700;color:var(--blue)}
 .roi-guide ul{padding-left:20px;margin:10px 0}
 .roi-guide li+li{margin-top:6px}
+.account-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);min-width:0}
+.account-link-label{font-size:11px;font-weight:700;color:var(--blue);white-space:nowrap}
+.account-link:hover .account-link-label,.account-link.active .account-link-label{text-decoration:underline}
+.account-details-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+.account-details-grid>.panel{margin-top:0}
+.account-details{padding:0 20px;margin:0}
+.account-details>div{padding:17px 0;border-bottom:1px solid var(--line)}
+.account-details>div:last-child{border-bottom:0}
+.account-details dt{font-size:11px;color:var(--muted);margin-bottom:6px}
+.account-details dd{font-size:14px;color:var(--ink);margin:0;overflow-wrap:anywhere;line-height:1.5}
+@media(max-width:700px){.account-details-grid{grid-template-columns:1fr}.account-link{gap:0}.account-link-label{font-size:10px}}
+.roi-filters{flex-wrap:wrap;gap:12px;align-items:end}
+.roi-filters label{display:grid;gap:6px;font-size:11px;color:var(--muted)}
+.roi-filters select,.roi-filters input{min-height:34px;max-width:100%;padding:6px 9px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:12px}
+.roi-filters input[type=number]{width:110px}
