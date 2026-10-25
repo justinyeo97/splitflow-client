@@ -1,10 +1,11 @@
+import PaginatedTable from './PaginatedTable.jsx'
 import { useAuth } from '../auth/AuthProvider.jsx'
 import { useEffect, useState } from 'react'
 import { apiRequest } from '../../api/client.js'
 import { ErrorState, LoadingState } from '../../components/States.jsx'
 import { money, useToken, Panel, Table } from './operationsUi.jsx'
 
-export default function RoiReport() {
+export default function RoiReport({refreshKey=0}) {
   const token = useToken()
   const { profile } = useAuth()
   const homeCurrency = profile?.company?.home_currency || 'USD'
@@ -52,7 +53,7 @@ export default function RoiReport() {
       .catch(err => { if (current) setError(err.message) })
       .finally(() => { if (current) setLoading(false) })
     return () => { current = false }
-  }, [token, month, groupBy, period, year, quarter, consultantId, reload, homeCurrency])
+  }, [token, month, groupBy, period, year, quarter, consultantId, reload, homeCurrency, refreshKey])
   function status(row) {
     const issues = []
     if (groupBy!=='company' && (groupBy==='country' ? !row.country_id : !row.consultant_id)) issues.push(groupBy==='country'?'Country missing':'Consultant missing')
@@ -66,7 +67,7 @@ export default function RoiReport() {
     <div className="expense-toolbar roi-filters">
       <label>View<select value={groupBy} onChange={e=>setGroupBy(e.target.value)}><option value="country">Country ROI</option><option value="consultant">Consultant ROI</option>{profile?.company&&<option value="company">Headquarters consolidation</option>}</select></label>
       <label>Period<select value={period} onChange={e=>setPeriod(e.target.value)}><option value="month">Monthly</option><option value="quarter">Quarterly</option><option value="year">Yearly</option></select></label>
-      {period==='month' ? <label>Month<input type="month" value={month} onChange={e=>setMonth(e.target.value)} /></label> : <label>Year<input type="number" min="1900" max="9998" placeholder="All years" value={year} onChange={e=>setYear(e.target.value)} /></label>}
+      {period==='month' ? <label>Month<input type="month" value={month} onChange={e=>setMonth(e.target.value)} /></label> : <label>Year<select value={year} onChange={e=>{setYear(e.target.value);setQuarter('')}}><option value="">All years</option>{Array.from({length:new Date().getFullYear()-1900+2},(_,index)=>new Date().getFullYear()+1-index).map(value=><option key={value} value={value}>{value}</option>)}</select></label>}
       {period==='quarter'&&<label>Quarter<select value={quarter} disabled={!year} onChange={e=>setQuarter(e.target.value)}><option value="">All quarters</option>{[1,2,3,4].map(q=><option key={q} value={q}>Q{q}</option>)}</select></label>}
       <label>Consultant<select value={consultantId} onChange={e=>setConsultantId(e.target.value)}><option value="">All consultants</option>{consultants.map(person=><option key={person.id} value={person.id}>{person.name} ({person.external_id})</option>)}</select></label>
       <button type="button" className="secondary-action" onClick={()=>{setMonth('');setYear('');setQuarter('');setConsultantId('')}}>Clear filters</button>
@@ -87,8 +88,6 @@ export default function RoiReport() {
       </details>
     </aside>
     {salaryIssues.length>0&&<div className="inline-error" role="alert">Salary information is missing for {salaryIssues.length} consultant(s). Report totals are incomplete.</div>}
-    {loading ? <LoadingState label="Calculating ROI…" /> : error ? <ErrorState title="Could not calculate ROI" message={error} onRetry={() => setReload(value => value + 1)} /> : rows.length === 0 ? <div className="table-empty">No expenses or placements for this period.</div> : <Table columns={['Period', groupBy==='company'?'Company':groupBy==='country'?'Country':'Consultant', 'Revenue ('+reportCurrency+')', 'Operating costs', 'Salary costs', 'Total costs ('+reportCurrency+')', 'Profit ('+reportCurrency+')', 'ROI', 'Placements', 'Cost / placement ('+reportCurrency+')', 'Status']}>
-      {rows.map(row => <tr key={(row.period||row.month)+':'+(row.country_id||row.consultant_id||row.company||'unassigned')}><td>{row.period||row.month}</td><td>{groupBy==='company'?row.company:groupBy==='country'?row.country:row.consultant}</td><td>{money(row.revenue)}</td><td>{money(row.operating_costs??row.costs)}</td><td>{salaryIncluded?money(row.salary_costs):'Not included'}</td><td>{money(row.costs)}</td><td>{row.profit == null ? '—' : money(row.profit)}</td><td>{row.roi_percent == null ? '—' : `${row.roi_percent}%`}</td><td>{row.placement_count}</td><td>{row.cost_per_placement == null ? '—' : money(row.cost_per_placement)}</td><td>{status(row)}</td></tr>)}
-    </Table>}
+    {loading ? <LoadingState label="Calculating ROI…" /> : error ? <ErrorState title="Could not calculate ROI" message={error} onRetry={() => setReload(value => value + 1)} /> : rows.length === 0 ? <div className="table-empty">No expenses or placements for this period.</div> : <PaginatedTable label="ROI" rows={rows} columns={['Period', groupBy==='company'?'Company':groupBy==='country'?'Country':'Consultant', 'Revenue ('+reportCurrency+')', 'Operating costs', 'Salary costs', 'Total costs ('+reportCurrency+')', 'Profit ('+reportCurrency+')', 'ROI', 'Placements', 'Cost / placement ('+reportCurrency+')', 'Status']} renderRow={row => (<tr key={(row.period||row.month)+':'+(row.country_id||row.consultant_id||row.company||'unassigned')}><td>{row.period||row.month}</td><td>{groupBy==='company'?row.company:groupBy==='country'?row.country:row.consultant}</td><td>{money(row.revenue)}</td><td>{money(row.operating_costs??row.costs)}</td><td>{salaryIncluded?money(row.salary_costs):'Not included'}</td><td>{money(row.costs)}</td><td>{row.profit == null ? '—' : money(row.profit)}</td><td>{row.roi_percent == null ? '—' : `${row.roi_percent}%`}</td><td>{row.placement_count}</td><td>{row.cost_per_placement == null ? '—' : money(row.cost_per_placement)}</td><td>{status(row)}</td></tr>)} />}
   </Panel>
 }

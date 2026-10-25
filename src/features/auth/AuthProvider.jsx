@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { apiRequest, setUnauthorizedHandler } from '../../api/client.js'
+import { apiRequest, getApiBaseUrl, setUnauthorizedHandler } from '../../api/client.js'
 import { supabase } from '../../api/supabase.js'
 
 const AuthContext = createContext(null)
@@ -11,6 +11,8 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null)
   const [profileError, setProfileError] = useState('')
   const [profileReload, setProfileReload] = useState(0)
+  const [invitationConfig,setInvitationConfig]=useState(false)
+  useEffect(()=>{let current=true;fetch(getApiBaseUrl()+'/auth/config').then(response=>{if(!response.ok)throw new Error('Optional invitation capability unavailable');return response.json()}).then(result=>{if(current)setInvitationConfig(Boolean(result.data?.invitations_enabled))}).catch(()=>{});return()=>{current=false}},[])
 
   useEffect(() => {
     let current = true
@@ -53,6 +55,11 @@ export function AuthProvider({ children }) {
     return () => { active = false; listener.subscription.unsubscribe(); setUnauthorizedHandler(undefined) }
   }, [])
 
+  async function joinCompany(companyId) {
+    await apiRequest('auth/join-company',{method:'POST',token:session.access_token,body:{company_id:companyId}})
+    const result=await apiRequest('auth/profile',{token:session.access_token});setProfile(result.data)
+  }
+
   async function signIn(email, password) {
     const result = await apiRequest('auth/login', { method: 'POST', body: { email, password } })
     if (!result?.data?.session) throw new Error('The API did not return a sign-in session.')
@@ -61,7 +68,7 @@ export function AuthProvider({ children }) {
   }
 
   async function signUp(email, password, companyName) {
-    const result = await apiRequest('auth/signup', { method: 'POST', body: { email, password, company_name: companyName } })
+    const result = await apiRequest('auth/signup', { method: 'POST', body: { email, password, ...(!(invitationConfig||profile?.invitations_enabled)?{company_name:companyName}:{}) } })
     if (result?.data?.session) {
       const { error } = await supabase.auth.setSession({ access_token: result.data.session.access_token, refresh_token: result.data.session.refresh_token })
       if (error) throw error
@@ -82,7 +89,7 @@ export function AuthProvider({ children }) {
     setSession(null)
   }
 
-  const value = useMemo(() => ({ session, user: session?.user || null, loading, authError, profile, profileError, refreshProfile, saveCompany, saveCompanySettings, signIn, signUp, signInWithGoogle, signOut }), [session, loading, authError, profile, profileError])
+  const value = useMemo(() => ({ session, user: session?.user || null, loading, authError, profile, profileError, invitationsEnabled:invitationConfig||Boolean(profile?.invitations_enabled), joinCompany, refreshProfile, saveCompany, saveCompanySettings, signIn, signUp, signInWithGoogle, signOut }), [session, loading, authError, profile, profileError, invitationConfig])
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

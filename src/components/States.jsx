@@ -1,3 +1,4 @@
+import ProximityHeading from './ProximityHeading.jsx'
 export function LoadingState({ label = 'Loading data…' }) {
   return <div className="state-card" role="status"><span className="spinner" aria-hidden="true" /><span>{label}</span></div>
 }
@@ -7,5 +8,5 @@ export function ErrorState({ title = 'Could not load data', message, onRetry }) 
 }
 
 export function EmptyState({ title, description }) {
-  return <div className="empty-card"><div className="empty-art" aria-hidden="true"><div className="art-sheet"><span /><span /><span /></div><div className="art-search">⌕</div></div><h2>{title}</h2><p>{description}</p></div>
+  return <div className="empty-card"><div className="empty-art" aria-hidden="true"><div className="art-sheet"><span /><span /><span /></div><div className="art-search">⌕</div></div><ProximityHeading as="h2">{title}</ProximityHeading><p>{description}</p></div>
 }

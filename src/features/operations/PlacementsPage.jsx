@@ -1,3 +1,4 @@
+import ProximityHeading from '../../components/ProximityHeading.jsx'
 import { useState } from 'react'
 import { apiRequest } from '../../api/client.js'
 import { useApiList } from '../../hooks/useApiList.js'
@@ -37,7 +38,7 @@ export default function PlacementsPage() {
     <Notice error={error || consultants.error?.message || countries.error?.message} notice={notice} />
     <div className="management-grid">
       <section className="panel form-panel">
-        <div className="panel-heading"><div><h2>{editing ? 'Edit placement' : 'Add a placement'}</h2><p>Record the fee and the date it is recognized as revenue.</p></div></div>
+        <div className="panel-heading"><div><ProximityHeading as="h2">{editing ? 'Edit placement' : 'Add a placement'}</ProximityHeading><p>Record the fee and the date it is recognized as revenue.</p></div></div>
         <form className="record-form" onSubmit={submit}>
           <p className="form-footnote">Placement ID is generated automatically.</p>
           <label>Consultant<select required value={form.consultant_id} onChange={e => change('consultant_id', e.target.value)}><option value="">Select consultant</option>{form.consultant_id && !byId[form.consultant_id] && <option value={form.consultant_id}>Current consultant</option>}{consultants.data.map(person => <option key={person.id} value={person.id}>{person.name} ({person.external_id})</option>)}</select></label>

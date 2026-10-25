@@ -1,3 +1,4 @@
+import ProximityHeading from '../../components/ProximityHeading.jsx'
 import { useState } from 'react'
 import { apiRequest } from '../../api/client.js'
 import { useApiList } from '../../hooks/useApiList.js'
@@ -41,11 +42,11 @@ export default function ExpenseImports({ onImported }) {
   }
 
   return <section className="expense-import-section" aria-labelledby="expense-import-title">
-    <div className="panel-heading"><div><h2 id="expense-import-title">Import expenses from CSV</h2><p>Upload multiple expenses and review results without leaving this page.</p></div></div>
+    <div className="panel-heading"><div><ProximityHeading as="h2" id="expense-import-title">Import expenses from CSV</ProximityHeading><p>Upload multiple expenses and review results without leaving this page.</p></div></div>
     <Notice error={error} notice={notice} />
     <div className="management-grid expense-import-grid">
       <section className="panel form-panel">
-        <div className="panel-heading"><div><h3>Upload CSV</h3><p>Maximum 5 MB and 5,000 rows.</p></div></div>
+        <div className="panel-heading"><div><ProximityHeading as="h3">Upload CSV</ProximityHeading><p>Maximum 5 MB and 5,000 rows.</p></div></div>
         <form className="record-form" onSubmit={upload}>
           <label>Expense CSV<input type="file" accept=".csv,text/csv" required disabled={busy} onChange={e => setFile(e.target.files?.[0] || null)} /></label>
           <p className="form-footnote">Required headers: consultant_external_id, transaction_date, original_amount, original_currency, category. Optional: vendor, source_identifier, description.</p>
@@ -54,7 +55,7 @@ export default function ExpenseImports({ onImported }) {
         <details className="expense-sample"><summary>Download a sample CSV</summary><SampleDownload token={token} /></details>
       </section>
       <section className="panel form-panel">
-        <div className="panel-heading"><div><h3>Import results</h3><p>Results load automatically after upload, or enter a previous batch ID.</p></div></div>
+        <div className="panel-heading"><div><ProximityHeading as="h3">Import results</ProximityHeading><p>Results load automatically after upload, or enter a previous batch ID.</p></div></div>
         <form className="record-form" onSubmit={e => { e.preventDefault(); loadBatch() }}>
           <label>Batch ID<input required value={batchId} onChange={e => setBatchId(e.target.value)} placeholder="UUID" disabled={busy || loadingBatch} /></label>
           <div className="form-actions"><button className="secondary-action" disabled={busy || loadingBatch || !batchId.trim()}>{loadingBatch ? 'Loading…' : 'Load batch'}</button></div>

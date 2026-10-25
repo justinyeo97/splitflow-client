@@ -1,32 +1,65 @@
-# Splitflow Client
+﻿# Splitflow
 
-CSV imports are available from **Expenses → Import CSV**. Upload results and batch errors appear inline, and the expense ledger refreshes after each completed import. Existing date filters remain active. The former `/imports` route redirects to the Expenses page with the importer open.
+**Live website:** https://splitflow-finance.vercel.app
 
-## ROI workflow
+**A finance and performance workspace for sales agencies operating across countries.**
 
-Record or edit placements with a revenue amount, currency, recognition date, and country. Open **Reports & reconciliation → Monthly country ROI** and select a month or view all months. Revenue uses recognition month; costs use expense transaction month. Both are valued in USD using historical rates. All recorded country/month costs are allocated to revenue for that same country/month. Placement counts and cost per placement use recognition month.
+Splitflow brings consultant salaries, operating expenses and placement revenue together so agencies can understand individual contribution, compare country performance and report to headquarters in their company's home currency.
 
-Existing placements need revenue entered through Edit. Missing revenue, missing rates, or unassigned countries are shown as incomplete, with profit and ROI withheld. Zero-cost ROI is undefined. The monthly ROI filter affects only the ROI report; the existing reconciliation and cost reports cover all dates.
+## Screenshots
 
-Splitflow is a regional cost allocation and financial intelligence frontend.
+> ![splitflow](image.png)
 
-## Current milestone
+## Core features
 
-Milestones 1–3 establish the Vite + React JavaScript scaffold, routed responsive application shell, centralized API client, shared loading/error/empty states, Supabase Auth sign-in/session handling, and API-backed country and consultant management. Country history is displayed with its effective dates. Other finance and master-data pages remain pending UI integration; they do not display fabricated values.
+- **ROI reporting:** Compare consultant, country and company performance by period.
+- **Automatic conversion:** Allocate expenses in regional currencies using historical rates.
+- **Headquarters consolidation:** Report revenue and costs in the company's home currency.
+- **Consultant management:** Track roles, salaries, employment and country assignments.
+- **Expense entry and imports:** Add expenses individually or upload CSV files.
+- **Invited access:** Let invited consultants view only their own expenses.
+- **Company isolation:** Protect company records with membership-based permissions.
 
-## Local development
+## Explore the pages
 
-1. Install Node.js (current LTS) and npm.
-2. Copy `.env.example` to `.env.local`.
-3. Set `VITE_API_BASE_URL` to `https://splitflow-api-production.up.railway.app/api/v1` for the deployed API. For local backend development, use `http://localhost:3000/api/v1`.
-4. Set the public Supabase project URL and publishable key (`VITE_SUPABASE_PUBLISHABLE_KEY`). These let Supabase JS persist and refresh the session returned by the API and process the Google OAuth callback. Never put a service-role key in Vite environment variables.
-5. Configure the frontend origin in the API's `ALLOWED_ORIGINS` (the local default permits `http://localhost:5173`). Google OAuth also requires its provider and callback allow-list setup in Supabase.
-6. Run `npm install`, then `npm run dev`.
+| Page | What it helps users do |
+|---|---|
+| **Dashboard** | Review spending, conversion status and recent expenses at a glance. |
+| **Expenses / My expenses** | Manage the company expense ledger and imports, or review personal expenses as a consultant. |
+| **Consultants** | Maintain the team, compensation, country assignments and login invitations. |
+| **Countries** | Configure regional reporting currencies. |
+| **Placements** | Record client revenue, consultant attribution and recognition dates. |
+| **Conversions & exceptions** | Review pending historical conversions and retry unavailable rates. |
+| **Reports & reconciliation** | Compare ROI and inspect regional allocations and conversion records, with paginated tables. |
+| **My account** | View the user profile, select an invited company and manage permitted company settings. |
 
-## Backend contract reviewed
+## How ROI works
 
-The companion API source is in `splitflow-capstone-api`. Its app mounts routes under `/api/v1`, returns structured `{ error: { code, message, requestId, details? } }` errors, and requires bearer tokens for resource routes. The frontend has implemented the auth contract and sends bearer tokens through the centralized API client. The backend has no profile/role endpoint, so frontend role-aware navigation is not available; API role checks remain authoritative and the UI must handle 403 responses.
+```text
+Total costs = Operating expenses excluding marked payroll + Accrued base salary
+Profit contribution = Recognized revenue - Total costs
+ROI (%) = Profit contribution / Total costs x 100
+```
 
-Implemented API capabilities available for the next frontend milestones include countries list/create/update; consultants list/create/update and country history; expense list/get/create/update and conversion creation; CSV expense import and import-batch detail; pending conversion exceptions/retry; country, consolidated USD and reconciliation reports; and placements list/create. List endpoints use `limit` and `offset`. Expenses accept explicit original currency, and consultant country attribution is date-effective. Finalized conversion inputs are immutable. Reports currently have no date filters. The API does not currently expose a dashboard aggregate or conversion detail list beyond the pending exceptions and nested expense/conversion responses.
+Revenue follows its recognition date; operating expenses follow transaction dates. Salary follows effective-dated compensation, employment dates and country assignments, with partial periods prorated by calendar days. Payroll expenses already represented in salary history must be marked to avoid double counting.
 
-The API README documents backend setup and limitations. No backend files were modified. Production deployment, API connectivity, Supabase configuration, OAuth provider setup, and authenticated end-to-end flows remain unverified.
+Reports identify missing revenue, salary coverage or exchange rates and withhold incomplete profit/ROI. Zero-cost ROI is undefined. Results are live calculations based on recorded costs, rather than closed accounting statements.
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, JavaScript (JSX), Vite 7 |
+| Routing | React Router 7 |
+| Styling | CSS, responsive layouts, React Bits VariableProximity heading effect |
+| Authentication | Supabase Auth with email/password and Google sign-in |
+| Database | Supabase PostgreSQL, row-level security and effective-dated records |
+| Backend | Node.js, Express, Zod validation and Supabase JavaScript client |
+| API hosting | Railway |
+| Currency data | Historical exchange-rate providers with fallback handling |
+
+This repository contains the frontend. The companion backend is maintained in `splitflow-capstone-api`.
+
+## Documentation
+
+- [Product and system architecture](ARCHITECTURE.md)

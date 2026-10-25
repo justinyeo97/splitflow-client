@@ -1,3 +1,5 @@
+import ProximityHeading from '../../components/ProximityHeading.jsx'
+import MyExpensesPage from './MyExpensesPage.jsx'
 import { useAuth } from '../auth/AuthProvider.jsx'
 import { useSearchParams } from 'react-router-dom'
 import ExpenseImports from './ExpenseImports.jsx'
@@ -6,7 +8,6 @@ import { apiRequest } from '../../api/client.js'
 import { ErrorState, LoadingState } from '../../components/States.jsx'
 import { useApiList } from '../../hooks/useApiList.js'
 import { today, expenseCurrencies, expenseCategories, money, useToken, Heading, Notice, Table, Panel, ListResult } from './operationsUi.jsx'
-import RoiReport from './RoiReport.jsx'
 
 export function DashboardPage() {
   const token = useToken()
@@ -40,6 +41,11 @@ export function DashboardPage() {
 }
 
 export function ExpensesPage() {
+  const {profile}=useAuth()
+  return profile?.role==='consultant'?<MyExpensesPage />:<ManagedExpensesPage />
+}
+
+function ManagedExpensesPage() {
   const token = useToken()
   const { profile } = useAuth()
   const payrollEnabled = Boolean(profile?.company)
@@ -98,7 +104,7 @@ export function ExpensesPage() {
   }
   return <section className="page-content"><Heading eyebrow="WORKSPACE" title="Expenses"><button type="button" className="secondary-action" aria-expanded={showImport} aria-controls="expense-import" onClick={() => setShowImport(value => !value)}>{showImport ? 'Hide CSV import' : 'Import CSV'}</button></Heading><p className="page-lede">Expenses convert automatically to the country reporting currency using historical rates. Unavailable rates remain pending for retry.</p><Notice error={error} notice={notice}/>
     <div id="expense-import" hidden={!showImport}><ExpenseImports onImported={() => { expenses.setOffset(0); expenses.refresh() }} /></div>
-    <div className="management-grid"><section className="panel form-panel"><div className="panel-heading"><div><h2>Add an expense</h2><p>Country attribution is determined by assignment on the transaction date.</p></div></div><form className="record-form" onSubmit={submit}>
+    <div className="management-grid"><section className="panel form-panel"><div className="panel-heading"><div><ProximityHeading as="h2">Add an expense</ProximityHeading><p>Country attribution is determined by assignment on the transaction date.</p></div></div><form className="record-form" onSubmit={submit}>
       <label>Consultant<select required disabled={editingLocked} value={form.consultant_id} onChange={e=>setForm({...form,consultant_id:e.target.value})}><option value="">Select consultant</option>{consultants.data.map(person=><option key={person.id} value={person.id}>{person.name} ({person.external_id})</option>)}</select></label>
       <label>Transaction date<input type="date" required disabled={editingLocked} value={form.transaction_date} onChange={e=>setForm({...form,transaction_date:e.target.value})}/></label><div className="form-row"><label>Amount<input type="number" min="0" step="0.00000001" required disabled={editingLocked} value={form.original_amount} onChange={e=>setForm({...form,original_amount:e.target.value})}/></label><label>Currency<select required disabled={editingLocked} value={form.original_currency} onChange={e=>setForm({...form,original_currency:e.target.value})}>{currencyOptions.map(currency=><option key={currency} value={currency}>{currency}</option>)}</select></label></div>
       {editingLocked&&<p className="form-footnote">Conversion is finalized. Amount, currency, date and consultant are locked; category, vendor and description can still be edited.</p>}{payrollEnabled&&<label className="checkbox-label"><input type="checkbox" checked={Boolean(form.is_payroll)} onChange={e=>setForm({...form,is_payroll:e.target.checked})} /> Payroll already covered by salary history (excluded from ROI expenses)</label>}<label>Category<select required value={form.category} onChange={e=>setForm({...form,category:e.target.value})}>{categoryOptions.map(category=><option key={category} value={category}>{category}</option>)}</select></label><label>Vendor (optional)<input maxLength="200" value={form.vendor} onChange={e=>setForm({...form,vendor:e.target.value})}/></label><label>Description (optional)<input maxLength="1000" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/></label>
@@ -115,10 +121,6 @@ export function ConversionsPage() {
   return <section className="page-content"><Heading eyebrow="FINANCE" title="Conversions & exceptions"><button className="secondary-action" onClick={()=>setReload(n=>n+1)} disabled={loading}>Refresh</button></Heading><p className="page-lede">Pending historical currency conversions returned by the finance API.</p><Notice error={error} notice={notice}/>{loading?<LoadingState label="Loading conversion exceptions…"/>:error?<ErrorState title="Could not load exceptions" message={error} onRetry={()=>setReload(n=>n+1)}/>:<Panel title="Pending exceptions" detail={`${items.length} pending`}>{items.length===0?<div className="table-empty">No pending conversion exceptions.</div>:<Table columns={['Expense','Date','Currency pair','Amount','Reason','Action']}>{items.map(item=><tr key={item.id}><td>{item.expenses?.description||item.expenses?.vendor||item.expense_id}</td><td>{item.expenses?.transaction_date||'—'}</td><td>{item.expenses?.original_currency} → {item.target_currency}</td><td>{money(item.expenses?.original_amount,item.expenses?.original_currency)}</td><td>{item.error_metadata?.[0]?.message||item.error_metadata?.reason||'Rate unavailable'}</td><td><button className="row-action" disabled={busyId===item.id} onClick={()=>retry(item.id)}>{busyId===item.id?'Retrying…':'Retry'}</button></td></tr>)}</Table>}</Panel>}</section>
 }
 
-export function ReportsPage() {
-  const token=useToken();const [data,setData]=useState(null);const [error,setError]=useState('');const [loading,setLoading]=useState(true);const [reload,setReload]=useState(0)
-  useEffect(()=>{let alive=true;setLoading(true);setError('');Promise.all([apiRequest('reports/country-costs',{token}),apiRequest('reports/consolidated',{token}),apiRequest('reports/reconciliation',{token}).catch(err=>err.status===403?null:Promise.reject(err))]).then(([countries,consolidated,reconciliation])=>{if(alive)setData({countries:countries?.data||[],consolidated:consolidated?.data,reconciliation})}).catch(err=>{if(alive)setError(err.message)}).finally(()=>{if(alive)setLoading(false)});return()=>{alive=false}},[token,reload])
-  return <section className="page-content"><Heading eyebrow="FINANCE" title="Reports & reconciliation"><button className="secondary-action" onClick={()=>setReload(n=>n+1)} disabled={loading}>Refresh reports</button></Heading><p className="page-lede">Review monthly ROI and reconcile recorded costs.</p><RoiReport />{error&&<ErrorState title="Could not load reports" message={error} onRetry={()=>setReload(n=>n+1)}/ >}{loading?<LoadingState label="Loading financial reports…"/>:data&&<><div className="metric-grid"><article className="metric-card"><span>Consolidated spend (USD)</span><strong>{money(data.consolidated?.total,data.consolidated?.currency||'USD')}</strong><small>{data.consolidated?.expense_count||0} expenses included | {data.consolidated?.unconverted_count||0} awaiting a USD rate</small></article>{data.reconciliation?.summary&&<><article className="metric-card"><span>Conversions checked</span><strong>{data.reconciliation.summary.conversion_count}</strong><small>{data.reconciliation.summary.finalized_count} finalized</small></article><article className="metric-card"><span>Exceptions</span><strong>{data.reconciliation.summary.exception_count}</strong><small>Pending or unfinalized conversions</small></article></>}</div><Panel title="Country costs" detail="Finalized amounts in each country’s default reporting currency"><Table columns={['Country','Currency','Finalized total','Converted expenses','Unconverted']} >{data.countries.map(row=><tr key={row.country_id}><td className="primary-cell">{row.country}</td><td>{row.currency}</td><td>{money(row.total,row.currency)}</td><td>{row.expense_count}</td><td>{row.unconverted_count}</td></tr>)}</Table>{!data.countries.length&&<div className="table-empty">No country costs to report yet.</div>}</Panel>{data.reconciliation&&<Panel title="Conversion reconciliation" detail="Conversion status and source expense"><Table columns={['Status','Target','Rate','Converted amount','Requested date','Effective rate date']}>{data.reconciliation.data.map(row=><tr key={row.id}><td><span className={`status-pill ${row.status==='finalized'?'status-active':'status-inactive'}`}>{row.status}</span></td><td>{row.target_currency}</td><td>{row.applied_rate||'—'}</td><td>{row.converted_amount?money(row.converted_amount,row.target_currency):'—'}</td><td>{row.requested_date||'—'}</td><td>{row.effective_rate_date||'—'}</td></tr>)}</Table>{!data.reconciliation.data.length&&<div className="table-empty">No conversions to reconcile yet.</div>}</Panel>}</>}</section>
-}
+export { default as ReportsPage } from './ReportsPage.jsx'
 
 export { default as PlacementsPage } from './PlacementsPage.jsx'

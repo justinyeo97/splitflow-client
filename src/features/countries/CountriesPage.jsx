@@ -1,3 +1,4 @@
+import ProximityHeading from '../../components/ProximityHeading.jsx'
 import { useState } from 'react'
 import { apiRequest } from '../../api/client.js'
 import { ErrorState, LoadingState } from '../../components/States.jsx'
@@ -36,11 +37,11 @@ export default function CountriesPage() {
   }
 
   return <section className="page-content">
-    <div className="page-heading"><div><p className="eyebrow">DIRECTORY</p><h1>Countries</h1></div><span className="scope-chip scope-live"><span className="scope-dot" /> Live API data</span></div>
+    <div className="page-heading"><div><p className="eyebrow">DIRECTORY</p><ProximityHeading as="h1">Countries</ProximityHeading></div><span className="scope-chip scope-live"><span className="scope-dot" /> Live API data</span></div>
     <p className="page-lede">Reporting currency is configured per country and used by the backend’s country cost report.</p>
     {notice && <div className="inline-notice" role="status">{notice}</div>}
     <div className="management-grid">
-      <section className="panel form-panel"><div className="panel-heading"><div><h2>{editing ? 'Edit country' : 'Add a country'}</h2><p>ISO code and default reporting currency are required.</p></div></div>
+      <section className="panel form-panel"><div className="panel-heading"><div><ProximityHeading as="h2">{editing ? 'Edit country' : 'Add a country'}</ProximityHeading><p>ISO code and default reporting currency are required.</p></div></div>
         {formError && <div className="inline-error" role="alert">{formError}</div>}
         <form className="record-form" onSubmit={submit}>
           <label>Country name<input required maxLength={120} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Malaysia" /></label>
@@ -49,7 +50,7 @@ export default function CountriesPage() {
           <p className="form-footnote">Country changes affect reporting configuration. Existing expenses keep their stored country attribution.</p>
         </form>
       </section>
-      <section className="panel table-panel"><div className="panel-heading"><div><h2>Configured countries</h2><p>{pagination.total} total</p></div><button className="secondary-action" onClick={refresh} disabled={loading}>Refresh</button></div>
+      <section className="panel table-panel"><div className="panel-heading"><div><ProximityHeading as="h2">Configured countries</ProximityHeading><p>{pagination.total} total</p></div><button className="secondary-action" onClick={refresh} disabled={loading}>Refresh</button></div>
         {error ? <ErrorState title={error.status === 403 ? 'Administrator access required' : 'Could not load countries'} message={error.message} onRetry={refresh} /> : loading ? <LoadingState label="Loading countries…" /> : data.length === 0 ? <div className="table-empty">No countries are configured yet.</div> : <div className="table-scroll"><table><thead><tr><th>Country</th><th>ISO code</th><th>Reporting currency</th><th><span className="sr-only">Actions</span></th></tr></thead><tbody>{data.map(country => <tr key={country.id}><td className="primary-cell">{country.name}</td><td><span className="code-pill">{country.iso_code.trim()}</span></td><td className="currency-cell">{country.default_reporting_currency.trim()}</td><td><button className="row-action" onClick={() => beginEdit(country)}>Edit</button></td></tr>)}</tbody></table></div>}
         <Pagination pagination={pagination} offset={offset} setOffset={setOffset} loading={loading} />
       </section>

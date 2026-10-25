@@ -1,3 +1,5 @@
+import ProximityHeading from './components/ProximityHeading.jsx'
+import CompanySetup from './features/auth/CompanySetup.jsx'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import AppShell from './layouts/AppShell.jsx'
 import { EmptyState } from './components/States.jsx'
@@ -32,6 +34,7 @@ function App() {
       <Route path="/sign-in" element={<SignInPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
+          <Route path="/companies" element={<CompanySetup embedded />} />
           <Route path="/account" element={<UserPage />} />
           <Route path="/imports" element={<Navigate to="/expenses?import=1" replace />} />
           {pages.map(({ path, title }) => <Route key={path} path={path} element={routeContent(path, title)} />)}
@@ -55,7 +58,7 @@ function Page({ title }) {
       <div className="page-heading">
         <div>
           <p className="eyebrow">REGIONAL COST ALLOCATION</p>
-          <h1>{title}</h1>
+          <ProximityHeading as="h1">{title}</ProximityHeading>
         </div>
         <span className="scope-chip"><span className="scope-dot" /> API data coming next</span>
       </div>
