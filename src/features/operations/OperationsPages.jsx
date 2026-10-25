@@ -9,6 +9,7 @@ import RoiReport from './RoiReport.jsx'
 
 export function DashboardPage() {
   const token = useToken()
+  const recentExpenses = useApiList('expenses', token, 8)
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
@@ -17,11 +18,10 @@ export function DashboardPage() {
     let alive = true
     setLoading(true); setError('')
     Promise.all([
-      apiRequest('expenses?limit=8&offset=0', { token }),
       apiRequest('reports/consolidated', { token }),
       apiRequest('conversions/exceptions', { token }).catch(err => err.status === 403 ? null : Promise.reject(err)),
-    ]).then(([expenses, report, exceptions]) => {
-      if (alive) setData({ expenses: expenses?.data || [], count: expenses?.pagination?.total || 0, report: report?.data, exceptions: exceptions?.data || null })
+    ]).then(([report, exceptions]) => {
+      if (alive) setData({ report: report?.data, exceptions: exceptions?.data || null })
     }).catch(err => { if (alive) setError(err.message || 'Could not load dashboard data.') }).finally(() => { if (alive) setLoading(false) })
     return () => { alive = false }
   }, [token, reload])
@@ -29,11 +29,11 @@ export function DashboardPage() {
   const countries = useApiList('countries', token, 100)
   const consultants = useMemo(() => Object.fromEntries(people.data.map(person => [person.id, person])), [people.data])
   const countryMap = useMemo(() => Object.fromEntries(countries.data.map(country => [country.id, country])), [countries.data])
-  return <section className="page-content"><Heading eyebrow="REGIONAL COST ALLOCATION" title="Dashboard"><button className="secondary-action" onClick={() => setReload(n => n + 1)} disabled={loading}>Refresh</button></Heading>
+  return <section className="page-content"><Heading eyebrow="REGIONAL COST ALLOCATION" title="Dashboard"><button className="secondary-action" onClick={() => { setReload(n => n + 1); recentExpenses.refresh() }} disabled={loading || recentExpenses.loading}>Refresh</button></Heading>
     {error && <ErrorState title="Could not load dashboard" message={error} onRetry={() => setReload(n => n + 1)} />}
     {loading ? <LoadingState label="Loading live financial data…" /> : data && <>
-      <div className="metric-grid"><article className="metric-card"><span>Recorded expenses</span><strong>{data.count.toLocaleString()}</strong><small>All expenses visible to your account</small></article><article className="metric-card"><span>Consolidated spend (USD)</span><strong>{money(data.report?.total, data.report?.currency || 'USD')}</strong><small>{data.report?.expense_count || 0} expenses included | {data.report?.unconverted_count || 0} awaiting a USD rate</small></article><article className="metric-card"><span>Pending conversions</span><strong>{data.exceptions ? data.exceptions.length.toLocaleString() : '—'}</strong><small>{data.exceptions ? 'Requires finance access to retry' : 'Finance permission required to view'}</small></article><article className="metric-card"><span>Active consultants (first 100)</span><strong>{people.data.filter(person => person.active).length.toLocaleString()}</strong><small>{people.loading ? 'Loading directory…' : `${people.pagination.total} in directory`}</small></article></div>
-      <Panel title="Recent expenses" detail="Latest records returned by the API"><ListResult list={{...{data:data.expenses,loading:false,error:null,pagination:{total:data.count,limit:8},offset:0}}} title="Recent expenses" columns={['Date','Consultant','Country','Category','Original amount']}>{data.expenses.map(expense => { const consultant=consultants[expense.consultant_id]; const country=countryMap[expense.attributed_country_id]; return <tr key={expense.id}><td>{expense.transaction_date}</td><td>{consultant?.name || '—'}</td><td>{country?.name || '—'}</td><td>{expense.category}</td><td>{money(expense.original_amount, expense.original_currency)}</td></tr> })}</ListResult></Panel>
+      <div className="metric-grid"><article className="metric-card"><span>Recorded expenses</span><strong>{recentExpenses.pagination.total.toLocaleString()}</strong><small>All expenses visible to your account</small></article><article className="metric-card"><span>Consolidated spend (USD)</span><strong>{money(data.report?.total, data.report?.currency || 'USD')}</strong><small>{data.report?.expense_count || 0} expenses included | {data.report?.unconverted_count || 0} awaiting a USD rate</small></article><article className="metric-card"><span>Pending conversions</span><strong>{data.exceptions ? data.exceptions.length.toLocaleString() : '—'}</strong><small>{data.exceptions ? 'Requires finance access to retry' : 'Finance permission required to view'}</small></article><article className="metric-card"><span>Active consultants (first 100)</span><strong>{people.data.filter(person => person.active).length.toLocaleString()}</strong><small>{people.loading ? 'Loading directory…' : `${people.pagination.total} in directory`}</small></article></div>
+      <Panel title="Recent expenses" detail="Latest records returned by the API"><ListResult preserveHeight list={recentExpenses} title="Recent expenses" columns={['Date','Consultant','Country','Category','Original amount']}>{recentExpenses.data.map(expense => { const consultant=consultants[expense.consultant_id]; const country=countryMap[expense.attributed_country_id]; return <tr key={expense.id}><td>{expense.transaction_date}</td><td>{consultant?.name || '—'}</td><td>{country?.name || '—'}</td><td>{expense.category}</td><td>{money(expense.original_amount, expense.original_currency)}</td></tr> })}</ListResult></Panel>
     </>}
   </section>
 }

@@ -38,3 +38,6 @@ body{background:var(--wash)}button,input,select{font-family:inherit}button,a,inp
 .roi-filters label{display:grid;gap:6px;font-size:11px;color:var(--muted)}
 .roi-filters select,.roi-filters input{min-height:34px;max-width:100%;padding:6px 9px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:12px}
 .roi-filters input[type=number]{width:110px}
+.stable-list{position:relative}
+.stable-list-loading{position:absolute;inset:0;display:grid;place-items:center;background:#fff}
+.stable-list-loading .state-card{border:0;background:transparent}

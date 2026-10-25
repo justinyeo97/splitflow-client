@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from 'react'
 import { ErrorState, LoadingState } from '../../components/States.jsx'
 import { useAuth } from '../auth/AuthProvider.jsx'
 
@@ -35,7 +36,26 @@ function Pager({ list }) {
 function Panel({ title, detail, action, children }) {
   return <section className="panel table-panel"><div className="panel-heading"><div><h2>{title}</h2>{detail && <p>{detail}</p>}</div>{action}</div>{children}</section>
 }
-function ListResult({ list, title, columns, children }) {
+function StableListResult({ list, title, columns, children }) {
+  const container = useRef(null)
+  const [height, setHeight] = useState(0)
+  useLayoutEffect(() => {
+    if (!container.current || list.loading) return
+    const observer = new ResizeObserver(() => {
+      setHeight(previous => Math.max(previous, container.current?.getBoundingClientRect().height || 0))
+    })
+    observer.observe(container.current)
+    return () => observer.disconnect()
+  }, [list.loading])
+  return <div ref={container} className="stable-list" style={{ minHeight: height || undefined }} aria-busy={list.loading}>
+    <div style={{ visibility: list.loading ? 'hidden' : undefined }} aria-hidden={list.loading || undefined}>
+      {list.error ? <ErrorState title={title} message={list.error.message} onRetry={list.refresh} /> : list.data.length ? <><Table columns={columns}>{children}</Table><Pager list={list} /></> : <div className="table-empty">No records yet.</div>}
+    </div>
+    {list.loading && <div className="stable-list-loading"><LoadingState label="Loading expenses..." /></div>}
+  </div>
+}
+function ListResult({ list, title, columns, children, preserveHeight = false }) {
+  if (preserveHeight) return <StableListResult list={list} title={title} columns={columns}>{children}</StableListResult>
   if (list.error) return <ErrorState title={title} message={list.error.message} onRetry={list.refresh} />
   if (list.loading) return <LoadingState label={`Loading ${title.toLowerCase()}…`} />
   if (!list.data.length) return <div className="table-empty">No records yet.</div>
