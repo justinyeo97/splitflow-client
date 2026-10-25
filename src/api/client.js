@@ -32,7 +32,9 @@ export async function apiRequest(path, { token, headers, ...options } = {}) {
   if (!response.ok) {
     if (response.status === 401) unauthorizedHandler?.()
     const message = typeof body === 'object' && body ? body.message || body.error?.message || body.error : body
-    throw new ApiError(message || `Request failed (${response.status}).`, { status: response.status, details: body })
+    const issues = body?.error?.details
+    const validation = Array.isArray(issues) ? issues.map(issue => `${issue.path || 'Request'}: ${issue.message}`).join('; ') : ''
+    throw new ApiError(validation ? `${message}. ${validation}` : message || `Request failed (${response.status}).`, { status: response.status, details: body })
   }
   return body
 }

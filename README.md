@@ -1,5 +1,11 @@
 # Splitflow Client
 
+## ROI workflow
+
+Record or edit placements with a revenue amount, currency, recognition date, and country. Open **Reports & reconciliation → Monthly country ROI** and select a month or view all months. Revenue uses recognition month; costs use expense transaction month. Both are valued in USD using historical rates. All recorded country/month costs are allocated to revenue for that same country/month. Placement counts and cost per placement use recognition month.
+
+Existing placements need revenue entered through Edit. Missing revenue, missing rates, or unassigned countries are shown as incomplete, with profit and ROI withheld. Zero-cost ROI is undefined. The monthly ROI filter affects only the ROI report; the existing reconciliation and cost reports cover all dates.
+
 Splitflow is a regional cost allocation and financial intelligence frontend.
 
 ## Current milestone
