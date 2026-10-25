@@ -1,5 +1,7 @@
 # Splitflow Client
 
+CSV imports are available from **Expenses → Import CSV**. Upload results and batch errors appear inline, and the expense ledger refreshes after each completed import. Existing date filters remain active. The former `/imports` route redirects to the Expenses page with the importer open.
+
 ## ROI workflow
 
 Record or edit placements with a revenue amount, currency, recognition date, and country. Open **Reports & reconciliation → Monthly country ROI** and select a month or view all months. Revenue uses recognition month; costs use expense transaction month. Both are valued in USD using historical rates. All recorded country/month costs are allocated to revenue for that same country/month. Placement counts and cost per placement use recognition month.

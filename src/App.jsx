@@ -5,12 +5,11 @@ import SignInPage from './features/auth/SignInPage.jsx'
 import ProtectedRoute from './features/auth/ProtectedRoute.jsx'
 import CountriesPage from './features/countries/CountriesPage.jsx'
 import ConsultantsPage from './features/consultants/ConsultantsPage.jsx'
-import { DashboardPage, ExpensesPage, ImportsPage, ConversionsPage, ReportsPage, PlacementsPage } from './features/operations/OperationsPages.jsx'
+import { DashboardPage, ExpensesPage, ConversionsPage, ReportsPage, PlacementsPage } from './features/operations/OperationsPages.jsx'
 
 const livePages = {
   '/': DashboardPage,
   '/expenses': ExpensesPage,
-  '/imports': ImportsPage,
   '/conversions': ConversionsPage,
   '/reports': ReportsPage,
   '/placements': PlacementsPage,
@@ -19,7 +18,6 @@ const livePages = {
 const pages = [
   { path: '/', title: 'Dashboard' },
   { path: '/expenses', title: 'Expenses' },
-  { path: '/imports', title: 'Imports' },
   { path: '/consultants', title: 'Consultants' },
   { path: '/countries', title: 'Countries' },
   { path: '/conversions', title: 'Conversions & exceptions' },
@@ -33,6 +31,7 @@ function App() {
       <Route path="/sign-in" element={<SignInPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
+          <Route path="/imports" element={<Navigate to="/expenses?import=1" replace />} />
           {pages.map(({ path, title }) => <Route key={path} path={path} element={routeContent(path, title)} />)}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

@@ -3,16 +3,16 @@ import { useAuth } from '../features/auth/AuthProvider.jsx'
 
 const links = [
   ['Overview', '/', '01'], ['Expenses', '/expenses', '02'],
-  ['Imports', '/imports', '03'], ['Consultants', '/consultants', '04'],
-  ['Countries', '/countries', '05'], ['Conversions', '/conversions', '06'],
-  ['Reports', '/reports', '07'], ['Placements', '/placements', '08'],
+  ['Consultants', '/consultants', '03'], ['Countries', '/countries', '04'],
+  ['Conversions', '/conversions', '05'], ['Reports', '/reports', '06'],
+  ['Placements', '/placements', '07'],
 ]
 
 export default function AppShell() {
   const { pathname } = useLocation()
-  const { user, signOut } = useAuth()
+  const { user, profile, signOut } = useAuth()
   return <div className="workspace-frame">
-    <div className="utility-strip"><span>ONE WORKSPACE. EVERY MARKET.</span><span>Splitflow / Finance operations</span></div>
+    <div className="utility-strip"><span>ONE WORKSPACE. EVERY MARKET.</span><span>{profile?.company_name || 'Splitflow'} / Finance operations</span></div>
     <header className="workspace-header">
       <NavLink className="brand" to="/" aria-label="Splitflow home"><span className="brand-mark">s<span>.</span></span><span className="brand-name">splitflow<span>.</span><small>GLOBAL FINANCE, CONNECTED</small></span></NavLink>
       <div className="header-caption">Built for a world<br/><strong>that works together.</strong></div>

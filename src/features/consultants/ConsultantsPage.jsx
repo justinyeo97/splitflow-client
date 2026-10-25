@@ -3,8 +3,9 @@ import { apiRequest } from '../../api/client.js'
 import { ErrorState, LoadingState } from '../../components/States.jsx'
 import { useApiList } from '../../hooks/useApiList.js'
 import { useAuth } from '../auth/AuthProvider.jsx'
+import { expenseCurrencies, money } from '../operations/operationsUi.jsx'
 
-const emptyConsultant = { external_id: '', name: '', country_id: '', country_effective_from: new Date().toISOString().slice(0, 10), active: true }
+const emptyConsultant = { name: '', job_title: '', annual_salary: '', salary_currency: 'USD', salary_effective_from: new Date().toISOString().slice(0, 10), country_id: '', country_effective_from: new Date().toISOString().slice(0, 10), active: true }
 
 export default function ConsultantsPage() {
   const { session } = useAuth()
@@ -23,14 +24,14 @@ export default function ConsultantsPage() {
 
   function beginEdit(person) {
     setEditing(person.id)
-    setForm({ external_id: person.external_id, name: person.name, country_id: person.country_id, country_effective_from: person.country_effective_from || new Date().toISOString().slice(0, 10), active: person.active })
+    setForm({ name: person.name, job_title: person.job_title || '', annual_salary: person.annual_salary == null ? '' : String(person.annual_salary), salary_currency: person.salary_currency || 'USD', salary_effective_from: person.salary_effective_from || new Date().toISOString().slice(0, 10), country_id: person.country_id, country_effective_from: person.country_effective_from || new Date().toISOString().slice(0, 10), active: person.active })
     setFormError(''); setNotice('')
   }
   function cancelEdit() { setEditing(null); setForm(emptyConsultant); setFormError('') }
 
   async function submit(event) {
     event.preventDefault(); setSaving(true); setFormError(''); setNotice('')
-    const payload = { external_id: form.external_id.trim(), name: form.name.trim(), country_id: form.country_id, country_effective_from: form.country_effective_from, active: form.active }
+    const payload = { ...form, name: form.name.trim(), job_title: form.job_title.trim(), annual_salary: String(form.annual_salary) }
     try {
       await apiRequest(editing ? `consultants/${editing}` : 'consultants', { method: editing ? 'PATCH' : 'POST', token, body: payload })
       setNotice(editing ? 'Consultant updated.' : 'Consultant created.')
@@ -56,8 +57,15 @@ export default function ConsultantsPage() {
         {formError && <div className="inline-error" role="alert">{formError}</div>}
         {countries.error && <div className="inline-error" role="alert">Could not load countries: {countries.error.message}</div>}
         <form className="record-form" onSubmit={submit}>
-          <label>Consultant ID<input required maxLength={100} value={form.external_id} onChange={e => setForm({ ...form, external_id: e.target.value })} placeholder="e.g. C-1042" /></label>
+          <p className="form-footnote">Consultant ID is generated automatically when you create a consultant.</p>
           <label>Full name<input required maxLength={200} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Consultant name" /></label>
+          <label>Job title<input required maxLength={200} value={form.job_title} onChange={e => setForm({ ...form, job_title: e.target.value })} placeholder="e.g. Recruitment Consultant" /></label>
+          <div className="form-row">
+            <label>Annual base salary<input type="number" required min="0" step="0.01" value={form.annual_salary} onChange={e => setForm({ ...form, annual_salary: e.target.value })} /></label>
+            <label>Salary currency<select required value={form.salary_currency} onChange={e => setForm({ ...form, salary_currency: e.target.value })}>{[...new Set([...expenseCurrencies, form.salary_currency])].sort().map(currency => <option key={currency} value={currency}>{currency}</option>)}</select></label>
+          </div>
+          <label>Salary effective from<input type="date" required value={form.salary_effective_from} onChange={e => setForm({ ...form, salary_effective_from: e.target.value })} /></label>
+          <p className="form-footnote">Annual base pay excludes bonuses, benefits and employer contributions. Monthly cost is annual salary ÷ 12; quarterly cost is annual salary ÷ 4. Salary costs will be included in ROI in a future update.</p>
           <label>Country assignment<select required value={form.country_id} onChange={e => setForm({ ...form, country_id: e.target.value })}><option value="">Select country</option>{countries.data.map(country => <option key={country.id} value={country.id}>{country.name} ({country.iso_code.trim()})</option>)}</select></label>
           <label>Assignment effective from<input type="date" required value={form.country_effective_from} onChange={e => setForm({ ...form, country_effective_from: e.target.value })} /></label>
           <label className="checkbox-label"><input type="checkbox" checked={form.active} onChange={e => setForm({ ...form, active: e.target.checked })} /> Active consultant</label>
@@ -66,7 +74,7 @@ export default function ConsultantsPage() {
         </form>
       </section>
       <section className="panel table-panel"><div className="panel-heading"><div><h2>Consultant directory</h2><p>{consultants.pagination.total} total</p></div><button className="secondary-action" onClick={consultants.refresh} disabled={consultants.loading}>Refresh</button></div>
-        {consultants.error ? <ErrorState title={consultants.error.status === 403 ? 'Access denied' : 'Could not load consultants'} message={consultants.error.message} onRetry={consultants.refresh} /> : consultants.loading ? <LoadingState label="Loading consultants…" /> : consultants.data.length === 0 ? <div className="table-empty">No consultants have been added yet.</div> : <div className="table-scroll"><table><thead><tr><th>Consultant</th><th>ID</th><th>Country</th><th>Status</th><th>History</th><th><span className="sr-only">Actions</span></th></tr></thead><tbody>{consultants.data.map(person => <ConsultantRows key={person.id} person={person} historyId={historyId} history={history} historyLoading={historyLoading} historyError={historyError} onHistory={toggleHistory} onEdit={beginEdit} />)}</tbody></table></div>}
+        {consultants.error ? <ErrorState title={consultants.error.status === 403 ? 'Access denied' : 'Could not load consultants'} message={consultants.error.message} onRetry={consultants.refresh} /> : consultants.loading ? <LoadingState label="Loading consultants…" /> : consultants.data.length === 0 ? <div className="table-empty">No consultants have been added yet.</div> : <div className="table-scroll"><table><thead><tr><th>Consultant</th><th>ID</th><th>Job title</th><th>Annual base salary</th><th>Salary effective from</th><th>Country</th><th>Status</th><th>History</th><th><span className="sr-only">Actions</span></th></tr></thead><tbody>{consultants.data.map(person => <ConsultantRows key={person.id} person={person} historyId={historyId} history={history} historyLoading={historyLoading} historyError={historyError} onHistory={toggleHistory} onEdit={beginEdit} />)}</tbody></table></div>}
         <Pagination pagination={consultants.pagination} offset={consultants.offset} setOffset={consultants.setOffset} loading={consultants.loading} />
       </section>
     </div>
@@ -75,8 +83,8 @@ export default function ConsultantsPage() {
 
 function ConsultantRows({ person, historyId, history, historyLoading, historyError, onHistory, onEdit }) {
   return <>
-    <tr><td className="primary-cell">{person.name}</td><td><span className="code-pill">{person.external_id}</span></td><td>{person.countries?.name || '—'} <span className="muted-cell">{person.countries?.iso_code || ''}</span></td><td><span className={`status-pill ${person.active ? 'status-active' : 'status-inactive'}`}>{person.active ? 'Active' : 'Inactive'}</span></td><td><button className="row-action" onClick={() => onHistory(person.id)}>{historyId === person.id ? 'Hide' : 'View'}</button></td><td><button className="row-action" onClick={() => onEdit(person)}>Edit</button></td></tr>
-    {historyId === person.id && <tr className="history-row"><td colSpan="6">{historyLoading ? <LoadingState label="Loading assignment history…" /> : historyError ? <span className="inline-error">{historyError}</span> : history.length === 0 ? <span>No assignment history found.</span> : <div className="history-list">{history.map(item => <div key={item.id}><strong>{item.countries?.name || 'Country'}</strong><span>From {item.effective_from}{item.effective_to ? ` to ${item.effective_to}` : ' · current'}</span></div>)}</div>}</td></tr>}
+    <tr><td className="primary-cell">{person.name}</td><td><span className="code-pill">{person.external_id}</span></td><td>{person.job_title || 'Not set'}</td><td>{person.annual_salary == null ? 'Not set' : money(person.annual_salary, person.salary_currency)}</td><td>{person.salary_effective_from || 'Not set'}</td><td>{person.countries?.name || '—'} <span className="muted-cell">{person.countries?.iso_code || ''}</span></td><td><span className={`status-pill ${person.active ? 'status-active' : 'status-inactive'}`}>{person.active ? 'Active' : 'Inactive'}</span></td><td><button className="row-action" onClick={() => onHistory(person.id)}>{historyId === person.id ? 'Hide' : 'View'}</button></td><td><button className="row-action" onClick={() => onEdit(person)}>Edit</button></td></tr>
+    {historyId === person.id && <tr className="history-row"><td colSpan="9">{historyLoading ? <LoadingState label="Loading assignment history…" /> : historyError ? <span className="inline-error">{historyError}</span> : history.length === 0 ? <span>No assignment history found.</span> : <div className="history-list">{history.map(item => <div key={item.id}><strong>{item.countries?.name || 'Country'}</strong><span>From {item.effective_from}{item.effective_to ? ` to ${item.effective_to}` : ' · current'}</span></div>)}</div>}</td></tr>}
   </>
 }
 

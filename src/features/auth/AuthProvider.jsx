@@ -8,6 +8,26 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
   const [authError, setAuthError] = useState('')
+  const [profile, setProfile] = useState(null)
+  const [profileError, setProfileError] = useState('')
+  const [profileReload, setProfileReload] = useState(0)
+
+  useEffect(() => {
+    let current = true
+    setProfile(null); setProfileError('')
+    if (session?.access_token) {
+      apiRequest('auth/profile', { token: session.access_token })
+        .then(result => { if (current) setProfile(result.data) })
+        .catch(error => { if (current) setProfileError(error.message) })
+    }
+    return () => { current = false }
+  }, [session?.access_token, profileReload])
+
+  function refreshProfile() { setProfileReload(value => value + 1) }
+  async function saveCompany(companyName) {
+    const result = await apiRequest('auth/profile', { method: 'PATCH', token: session.access_token, body: { company_name: companyName.trim() } })
+    setProfile(result.data)
+  }
 
   useEffect(() => {
     if (!supabase) {
@@ -36,8 +56,8 @@ export function AuthProvider({ children }) {
     if (error) throw error
   }
 
-  async function signUp(email, password) {
-    const result = await apiRequest('auth/signup', { method: 'POST', body: { email, password } })
+  async function signUp(email, password, companyName) {
+    const result = await apiRequest('auth/signup', { method: 'POST', body: { email, password, company_name: companyName } })
     if (result?.data?.session) {
       const { error } = await supabase.auth.setSession({ access_token: result.data.session.access_token, refresh_token: result.data.session.refresh_token })
       if (error) throw error
@@ -58,7 +78,7 @@ export function AuthProvider({ children }) {
     setSession(null)
   }
 
-  const value = useMemo(() => ({ session, user: session?.user || null, loading, authError, signIn, signUp, signInWithGoogle, signOut }), [session, loading, authError])
+  const value = useMemo(() => ({ session, user: session?.user || null, loading, authError, profile, profileError, refreshProfile, saveCompany, signIn, signUp, signInWithGoogle, signOut }), [session, loading, authError, profile, profileError])
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
