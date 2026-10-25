@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react'
 import { useAuth } from './AuthProvider.jsx'
+import { expenseCurrencies } from '../operations/operationsUi.jsx'
 
 function dateLabel(value) {
   if (!value || Number.isNaN(Date.parse(value))) return 'Not available'
@@ -26,8 +28,33 @@ export default function UserPage() {
       </section>
       <section className="panel" aria-labelledby="company-details-title">
         <div className="panel-heading"><div><h2 id="company-details-title">Company details</h2><p>The company associated with your account.</p></div></div>
-        <dl className="account-details"><div><dt>Company name</dt><dd>{profile?.company_name || 'Not provided'}</dd></div></dl>
+        {profile?.company ? <CompanySettings /> : <dl className="account-details"><div><dt>Company name</dt><dd>{profile?.company_name || 'Not provided'}</dd></div></dl>}
       </section>
     </div>
   </section>
+}
+
+function CompanySettings() {
+  const { profile, saveCompanySettings } = useAuth()
+  const [name, setName] = useState(profile.company.name)
+  const [currency, setCurrency] = useState(profile.company.home_currency)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
+  useEffect(() => { setName(profile.company.name); setCurrency(profile.company.home_currency) }, [profile.company])
+  const admin = profile.role === 'administrator'
+  async function submit(event) {
+    event.preventDefault(); setError(''); setNotice(''); setBusy(true)
+    try { await saveCompanySettings({name:name.trim(),home_currency:currency}); setNotice('Company settings saved. Reports will use this currency.') }
+    catch(err) { setError(err.message) } finally { setBusy(false) }
+  }
+  return <form className="record-form company-settings" onSubmit={submit}>
+    {error&&<div className="inline-error" role="alert">{error}</div>}
+    {notice&&<div className="inline-notice" role="status">{notice}</div>}
+    <label>Company name<input required maxLength={200} value={name} disabled={!admin||busy} onChange={e=>setName(e.target.value)} /></label>
+    <label>Headquarters reporting currency<select value={currency} disabled={!admin||busy} onChange={e=>setCurrency(e.target.value)}>{[...new Set([...expenseCurrencies,currency])].sort().map(code=><option key={code} value={code}>{code}</option>)}</select></label>
+    <p className="form-footnote">Country expense conversions retain each country's reporting currency. Consolidated reports use this home currency.</p>
+    <p className="form-footnote">Reporting timezone: {profile.company.reporting_timezone}. Periods follow calendar months, quarters and years.</p>
+    {admin&&<div className="form-actions"><button className="primary-button" disabled={busy||!name.trim()}>{busy?'Saving...':'Save company settings'}</button></div>}
+  </form>
 }

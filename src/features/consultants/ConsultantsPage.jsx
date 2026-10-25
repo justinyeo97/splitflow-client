@@ -5,10 +5,10 @@ import { useApiList } from '../../hooks/useApiList.js'
 import { useAuth } from '../auth/AuthProvider.jsx'
 import { expenseCurrencies, money } from '../operations/operationsUi.jsx'
 
-const emptyConsultant = { name: '', job_title: '', annual_salary: '', salary_currency: 'USD', salary_effective_from: new Date().toISOString().slice(0, 10), country_id: '', country_effective_from: new Date().toISOString().slice(0, 10), active: true }
+const emptyConsultant = { employment_start_date: new Date().toISOString().slice(0,10), employment_end_date:'', name: '', job_title: '', annual_salary: '', salary_currency: 'USD', salary_effective_from: new Date().toISOString().slice(0, 10), country_id: '', country_effective_from: new Date().toISOString().slice(0, 10), active: true }
 
 export default function ConsultantsPage() {
-  const { session } = useAuth()
+  const { session, profile } = useAuth()
   const token = session?.access_token
   const consultants = useApiList('consultants', token)
   const countries = useApiList('countries', token, 100)
@@ -24,7 +24,7 @@ export default function ConsultantsPage() {
 
   function beginEdit(person) {
     setEditing(person.id)
-    setForm({ name: person.name, job_title: person.job_title || '', annual_salary: person.annual_salary == null ? '' : String(person.annual_salary), salary_currency: person.salary_currency || 'USD', salary_effective_from: person.salary_effective_from || new Date().toISOString().slice(0, 10), country_id: person.country_id, country_effective_from: person.country_effective_from || new Date().toISOString().slice(0, 10), active: person.active })
+    setForm({ employment_start_date:person.employment_start_date||person.salary_effective_from||person.country_effective_from, employment_end_date:person.employment_end_date||'', name: person.name, job_title: person.job_title || '', annual_salary: person.annual_salary == null ? '' : String(person.annual_salary), salary_currency: person.salary_currency || 'USD', salary_effective_from: person.salary_effective_from || new Date().toISOString().slice(0, 10), country_id: person.country_id, country_effective_from: person.country_effective_from || new Date().toISOString().slice(0, 10), active: person.active })
     setFormError(''); setNotice('')
   }
   function cancelEdit() { setEditing(null); setForm(emptyConsultant); setFormError('') }
@@ -32,6 +32,8 @@ export default function ConsultantsPage() {
   async function submit(event) {
     event.preventDefault(); setSaving(true); setFormError(''); setNotice('')
     const payload = { ...form, name: form.name.trim(), job_title: form.job_title.trim(), annual_salary: String(form.annual_salary) }
+    if (profile?.company) payload.employment_end_date=form.employment_end_date||null
+    else { delete payload.employment_start_date; delete payload.employment_end_date }
     try {
       await apiRequest(editing ? `consultants/${editing}` : 'consultants', { method: editing ? 'PATCH' : 'POST', token, body: payload })
       setNotice(editing ? 'Consultant updated.' : 'Consultant created.')
@@ -65,9 +67,10 @@ export default function ConsultantsPage() {
             <label>Salary currency<select required value={form.salary_currency} onChange={e => setForm({ ...form, salary_currency: e.target.value })}>{[...new Set([...expenseCurrencies, form.salary_currency])].sort().map(currency => <option key={currency} value={currency}>{currency}</option>)}</select></label>
           </div>
           <label>Salary effective from<input type="date" required value={form.salary_effective_from} onChange={e => setForm({ ...form, salary_effective_from: e.target.value })} /></label>
-          <p className="form-footnote">Annual base pay excludes bonuses, benefits and employer contributions. Monthly cost is annual salary ÷ 12; quarterly cost is annual salary ÷ 4. Salary costs will be included in ROI in a future update.</p>
+          <p className="form-footnote">Annual base pay excludes bonuses, benefits and employer contributions. Monthly cost is annual salary ÷ 12; quarterly cost is annual salary ÷ 4. {profile?.company?'ROI includes salary accrued through today, prorated by calendar days.':'Salary costs will be included in ROI in a future update.'}</p>
           <label>Country assignment<select required value={form.country_id} onChange={e => setForm({ ...form, country_id: e.target.value })}><option value="">Select country</option>{countries.data.map(country => <option key={country.id} value={country.id}>{country.name} ({country.iso_code.trim()})</option>)}</select></label>
           <label>Assignment effective from<input type="date" required value={form.country_effective_from} onChange={e => setForm({ ...form, country_effective_from: e.target.value })} /></label>
+          {profile?.company&&<><label>Employment start<input type="date" required value={form.employment_start_date} onChange={e=>setForm({...form,employment_start_date:e.target.value})} /></label><label>Employment end (optional)<input type="date" min={form.employment_start_date} value={form.employment_end_date} onChange={e=>setForm({...form,employment_end_date:e.target.value})} /></label><p className="form-footnote">Salary changes require a later effective date and preserve earlier pay. Employment dates determine payroll accrual; Active controls the current directory status.</p></>}
           <label className="checkbox-label"><input type="checkbox" checked={form.active} onChange={e => setForm({ ...form, active: e.target.checked })} /> Active consultant</label>
           <div className="form-actions">{editing && <button type="button" className="secondary-action" onClick={cancelEdit} disabled={saving}>Cancel</button>}<button className="primary-button" type="submit" disabled={saving || countries.loading || countries.data.length === 0}>{saving ? 'Saving…' : editing ? 'Save changes' : 'Create consultant'}</button></div>
           <p className="form-footnote">A new country assignment affects expenses from its effective date onward. Past expense attribution is not reallocated.</p>

@@ -13,7 +13,7 @@ export default function AppShell() {
   const { user, profile, signOut } = useAuth()
   const userName = user?.user_metadata?.full_name || user?.user_metadata?.name || 'My account'
   return <div className="workspace-frame">
-    <div className="utility-strip"><span>ONE WORKSPACE. EVERY MARKET.</span><span>{profile?.company_name || 'Splitflow'} / Finance operations</span></div>
+    <div className="utility-strip"><span>ONE WORKSPACE. EVERY MARKET.</span><span>{profile?.company?.name || profile?.company_name || 'Splitflow'} / Finance operations</span></div>
     <header className="workspace-header">
       <NavLink className="brand" to="/" aria-label="Splitflow home"><span className="brand-mark">s<span>.</span></span><span className="brand-name">splitflow<span>.</span><small>GLOBAL FINANCE, CONNECTED</small></span></NavLink>
       <div className="header-caption">Global Team<br/><strong>One Team</strong></div>

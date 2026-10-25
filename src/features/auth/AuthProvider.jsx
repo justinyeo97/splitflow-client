@@ -28,6 +28,10 @@ export function AuthProvider({ children }) {
     const result = await apiRequest('auth/profile', { method: 'PATCH', token: session.access_token, body: { company_name: companyName.trim() } })
     setProfile(result.data)
   }
+  async function saveCompanySettings(settings) {
+    const result = await apiRequest('company', { method: 'PATCH', token: session.access_token, body: settings })
+    setProfile(previous => ({ ...previous, company_name: result.data.name, company: result.data }))
+  }
 
   useEffect(() => {
     if (!supabase) {
@@ -78,7 +82,7 @@ export function AuthProvider({ children }) {
     setSession(null)
   }
 
-  const value = useMemo(() => ({ session, user: session?.user || null, loading, authError, profile, profileError, refreshProfile, saveCompany, signIn, signUp, signInWithGoogle, signOut }), [session, loading, authError, profile, profileError])
+  const value = useMemo(() => ({ session, user: session?.user || null, loading, authError, profile, profileError, refreshProfile, saveCompany, saveCompanySettings, signIn, signUp, signInWithGoogle, signOut }), [session, loading, authError, profile, profileError])
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

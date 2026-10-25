@@ -18,7 +18,7 @@ Milestones 1–3 establish the Vite + React JavaScript scaffold, routed responsi
 
 1. Install Node.js (current LTS) and npm.
 2. Copy `.env.example` to `.env.local`.
-3. Set `VITE_API_BASE_URL` to the Express API base URL, including `/api/v1`, for example `http://localhost:3000/api/v1`.
+3. Set `VITE_API_BASE_URL` to `https://splitflow-api-production.up.railway.app/api/v1` for the deployed API. For local backend development, use `http://localhost:3000/api/v1`.
 4. Set the public Supabase project URL and publishable key (`VITE_SUPABASE_PUBLISHABLE_KEY`). These let Supabase JS persist and refresh the session returned by the API and process the Google OAuth callback. Never put a service-role key in Vite environment variables.
 5. Configure the frontend origin in the API's `ALLOWED_ORIGINS` (the local default permits `http://localhost:5173`). Google OAuth also requires its provider and callback allow-list setup in Supabase.
 6. Run `npm install`, then `npm run dev`.

@@ -41,3 +41,4 @@ body{background:var(--wash)}button,input,select{font-family:inherit}button,a,inp
 .stable-list{position:relative}
 .stable-list-loading{position:absolute;inset:0;display:grid;place-items:center;background:#fff}
 .stable-list-loading .state-card{border:0;background:transparent}
+.company-settings{padding-bottom:20px}
