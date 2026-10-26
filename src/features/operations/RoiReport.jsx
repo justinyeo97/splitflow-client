@@ -42,12 +42,14 @@ export default function RoiReport({refreshKey=0}) {
   useEffect(() => {
     let current = true
     setLoading(true); setError('')
+    // Turn the selected filters into a request asking the backend for the right report.
     const query = new URLSearchParams({group_by:groupBy,period})
     if (consultantId) query.set('consultant_id',consultantId)
     if (period==='month' && month) query.set('month',month)
     if (period!=='month' && year) query.set('year',year)
     if (period==='quarter' && year && quarter) query.set('quarter',quarter)
     if (period!=='month' && year && (!/^\d{4}$/.test(year)||Number(year)<1900||Number(year)>9998)) {setLoading(false);setError('Enter a year between 1900 and 9998.');return ()=>{current=false}}
+    // Show the returned numbers only if this request is still the current one.
     apiRequest('reports/roi?'+query, { token })
       .then(result => { if (current) {setRows(result.data);setReportCurrency(result.currency||homeCurrency);setSalaryIncluded(Boolean(result.salary_included));setSalaryIssues(result.salary_issues||[])} })
       .catch(err => { if (current) setError(err.message) })

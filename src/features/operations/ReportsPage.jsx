@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthProvider.jsx'
 import { Heading, Panel, Table, money } from './operationsUi.jsx'
 import RoiReport from './RoiReport.jsx'
 
+// Give each report its own data, loading message and error so one failure does not hide the others.
 function useReport(path, token, scope, reload) {
   const [state, setState] = useState({ scope, data:null, loading:true, error:null })
   useEffect(() => {
@@ -14,6 +15,7 @@ function useReport(path, token, scope, reload) {
     apiRequest(path,{token})
       .then(data=>{if(current)setState({scope,data,loading:false,error:null})})
       .catch(error=>{if(current)setState(previous=>({...previous,loading:false,error}))})
+    // Ignore an old response after we switch reports or leave the page.
     return ()=>{current=false}
   },[path,token,scope,reload])
   return state.scope===scope?state:{scope,data:null,loading:true,error:null}
@@ -23,8 +25,10 @@ export default function ReportsPage() {
   const {session,profile}=useAuth()
   const token=session?.access_token
   const currency=profile?.company?.home_currency||'USD'
+  // Keep results tied to the current company and currency so old results are not shown as new ones.
   const scope=(profile?.company?.id||profile?.company_id||session?.user?.id||'')+':'+currency
   const [reload,setReload]=useState(0)
+  // Load these reports separately. Each can finish or fail without replacing the whole page.
   const country=useReport('reports/country-costs',token,scope,reload)
   const spend=useReport('reports/consolidated',token,scope,reload)
   const reconciliation=useReport('reports/reconciliation',token,scope,reload)
@@ -32,6 +36,7 @@ export default function ReportsPage() {
   const summary=reconciliation.data?.summary
   const total=spend.data?.data
   const noPermission=reconciliation.error?.status===403
+  // Keep the summary cards on the page while their numbers are loading or unavailable.
   return <section className="page-content">
     <div className="metric-grid report-summary" aria-label="Report summary">
       <article className="metric-card" aria-busy={spend.loading}>
