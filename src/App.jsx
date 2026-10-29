@@ -1,32 +1,38 @@
-import ProximityHeading from './components/ProximityHeading.jsx'
-import CompanySetup from './features/auth/CompanySetup.jsx'
-import { Navigate, Route, Routes } from 'react-router-dom'
-import AppShell from './layouts/AppShell.jsx'
-import { EmptyState } from './components/States.jsx'
-import SignInPage from './features/auth/SignInPage.jsx'
-import ProtectedRoute from './features/auth/ProtectedRoute.jsx'
-import UserPage from './features/auth/UserPage.jsx'
-import CountriesPage from './features/countries/CountriesPage.jsx'
-import ConsultantsPage from './features/consultants/ConsultantsPage.jsx'
-import { DashboardPage, ExpensesPage, ConversionsPage, ReportsPage, PlacementsPage } from './features/operations/OperationsPages.jsx'
+import ProximityHeading from "./components/ProximityHeading.jsx";
+import CompanySetup from "./features/auth/CompanySetup.jsx";
+import { Navigate, Route, Routes } from "react-router-dom";
+import AppShell from "./layouts/AppShell.jsx";
+import { EmptyState } from "./components/States.jsx";
+import SignInPage from "./features/auth/SignInPage.jsx";
+import ProtectedRoute from "./features/auth/ProtectedRoute.jsx";
+import UserPage from "./features/auth/UserPage.jsx";
+import CountriesPage from "./features/countries/CountriesPage.jsx";
+import ConsultantsPage from "./features/consultants/ConsultantsPage.jsx";
+import {
+  DashboardPage,
+  ExpensesPage,
+  ConversionsPage,
+  ReportsPage,
+  PlacementsPage,
+} from "./features/operations/OperationsPages.jsx";
 
 const livePages = {
-  '/': DashboardPage,
-  '/expenses': ExpensesPage,
-  '/conversions': ConversionsPage,
-  '/reports': ReportsPage,
-  '/placements': PlacementsPage,
-}
+  "/": DashboardPage,
+  "/expenses": ExpensesPage,
+  "/conversions": ConversionsPage,
+  "/reports": ReportsPage,
+  "/placements": PlacementsPage,
+};
 
 const pages = [
-  { path: '/', title: 'Dashboard' },
-  { path: '/expenses', title: 'Expenses' },
-  { path: '/consultants', title: 'Consultants' },
-  { path: '/countries', title: 'Countries' },
-  { path: '/conversions', title: 'Conversions & exceptions' },
-  { path: '/reports', title: 'Reports & reconciliation' },
-  { path: '/placements', title: 'Placements' },
-]
+  { path: "/", title: "Dashboard" },
+  { path: "/expenses", title: "Expenses" },
+  { path: "/consultants", title: "Consultants" },
+  { path: "/countries", title: "Countries" },
+  { path: "/conversions", title: "Conversions & exceptions" },
+  { path: "/reports", title: "Reports & reconciliation" },
+  { path: "/placements", title: "Placements" },
+];
 
 function App() {
   return (
@@ -36,20 +42,25 @@ function App() {
         <Route element={<AppShell />}>
           <Route path="/companies" element={<CompanySetup embedded />} />
           <Route path="/account" element={<UserPage />} />
-          <Route path="/imports" element={<Navigate to="/expenses?import=1" replace />} />
-          {pages.map(({ path, title }) => <Route key={path} path={path} element={routeContent(path, title)} />)}
+          <Route
+            path="/imports"
+            element={<Navigate to="/expenses?import=1" replace />}
+          />
+          {pages.map(({ path, title }) => (
+            <Route key={path} path={path} element={routeContent(path, title)} />
+          ))}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Route>
     </Routes>
-  )
+  );
 }
 
 function routeContent(path, title) {
-  if (path === '/countries') return <CountriesPage />
-  if (path === '/consultants') return <ConsultantsPage />
-  const Component = livePages[path]
-  return Component ? <Component /> : <Page title={title} />
+  if (path === "/countries") return <CountriesPage />;
+  if (path === "/consultants") return <ConsultantsPage />;
+  const Component = livePages[path];
+  return Component ? <Component /> : <Page title={title} />;
 }
 
 function Page({ title }) {
@@ -60,14 +71,16 @@ function Page({ title }) {
           <p className="eyebrow">REGIONAL COST ALLOCATION</p>
           <ProximityHeading as="h1">{title}</ProximityHeading>
         </div>
-        <span className="scope-chip"><span className="scope-dot" /> API data coming next</span>
+        <span className="scope-chip">
+          <span className="scope-dot" /> API data coming next
+        </span>
       </div>
       <EmptyState
         title="This page is ready for live data"
         description="The API contract is available. This screen is being connected to verified API responses; no demonstration financial figures are shown."
       />
     </section>
-  )
+  );
 }
 
-export default App
+export default App;

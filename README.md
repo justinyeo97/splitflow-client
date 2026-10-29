@@ -23,16 +23,16 @@ Splitflow brings consultant salaries, operating expenses and placement revenue t
 
 ## Explore the pages
 
-| Page | What it helps users do |
-|---|---|
-| **Dashboard** | Review spending, conversion status and recent expenses at a glance. |
-| **Expenses / My expenses** | Manage expenses and imports, including permitted deletion, or review personal expenses as a consultant. |
-| **Consultants** | Maintain the team, compensation, country assignments and login invitations. |
-| **Countries** | Configure regional reporting currencies. |
-| **Placements** | Add, edit or delete placement revenue records with the appropriate permissions. |
-| **Conversions & exceptions** | Review pending historical conversions and retry unavailable rates. |
-| **Reports & reconciliation** | Compare ROI and inspect regional allocations and conversion records, with paginated tables. |
-| **My account** | View the user profile, select an invited company and manage permitted company settings. |
+| Page                         | What it helps users do                                                                                  |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Dashboard**                | Review spending, conversion status and recent expenses at a glance.                                     |
+| **Expenses / My expenses**   | Manage expenses and imports, including permitted deletion, or review personal expenses as a consultant. |
+| **Consultants**              | Maintain the team, compensation, country assignments and login invitations.                             |
+| **Countries**                | Configure regional reporting currencies.                                                                |
+| **Placements**               | Add, edit or delete placement revenue records with the appropriate permissions.                         |
+| **Conversions & exceptions** | Review pending historical conversions and retry unavailable rates.                                      |
+| **Reports & reconciliation** | Compare ROI and inspect regional allocations and conversion records, with paginated tables.             |
+| **My account**               | View the user profile, select an invited company and manage permitted company settings.                 |
 
 ## How ROI works
 
@@ -48,16 +48,16 @@ Reports identify missing revenue, salary coverage or exchange rates and withhold
 
 ## Tech stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 19, JavaScript (JSX), Vite 7 |
-| Routing | React Router 7 |
-| Styling | CSS, responsive layouts, React Bits VariableProximity heading effect |
-| Authentication | Supabase Auth with email/password and Google sign-in |
-| Database | Supabase PostgreSQL, row-level security and effective-dated records |
-| Backend | Node.js, Express, Zod validation and Supabase JavaScript client |
-| API hosting | Railway |
-| Currency data | Historical exchange-rate providers with fallback handling |
+| Layer          | Technology                                                           |
+| -------------- | -------------------------------------------------------------------- |
+| Frontend       | React 19, JavaScript (JSX), Vite 7                                   |
+| Routing        | React Router 7                                                       |
+| Styling        | CSS, responsive layouts, React Bits VariableProximity heading effect |
+| Authentication | Supabase Auth with email/password and Google sign-in                 |
+| Database       | Supabase PostgreSQL, row-level security and effective-dated records  |
+| Backend        | Node.js, Express, Zod validation and Supabase JavaScript client      |
+| API hosting    | Railway                                                              |
+| Currency data  | Historical exchange-rate providers with fallback handling            |
 
 This repository contains the frontend. The companion backend is maintained in `splitflow-capstone-api`.
 
