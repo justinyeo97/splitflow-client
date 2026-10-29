@@ -8,6 +8,9 @@ import { supabase } from "../../api/supabase.js";
 
 const AuthContext = createContext(null);
 
+const loadProfile = (token) =>
+  apiRequest("auth/profile", { token }).then((result) => result.data);
+
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,9 +42,9 @@ export function AuthProvider({ children }) {
     setProfile(null);
     setProfileError("");
     if (session?.access_token) {
-      apiRequest("auth/profile", { token: session.access_token })
-        .then((result) => {
-          if (current) setProfile(result.data);
+      loadProfile(session.access_token)
+        .then((profile) => {
+          if (current) setProfile(profile);
         })
         .catch((error) => {
           if (current) setProfileError(error.message);
@@ -116,10 +119,8 @@ export function AuthProvider({ children }) {
       token: session.access_token,
       body: { company_id: companyId },
     });
-    const result = await apiRequest("auth/profile", {
-      token: session.access_token,
-    });
-    setProfile(result.data);
+    const profile = await loadProfile(session.access_token);
+    setProfile(profile);
   }
 
   async function signIn(email, password) {
