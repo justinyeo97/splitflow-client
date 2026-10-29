@@ -17,6 +17,7 @@ Splitflow brings consultant salaries, operating expenses and placement revenue t
 - **Headquarters consolidation:** Report revenue and costs in the company's home currency.
 - **Consultant management:** Track roles, salaries, employment and country assignments.
 - **Expense entry and imports:** Add expenses individually or upload CSV files.
+- **Expense and placement deletion:** Admins and Finance can delete records with confirmation; expense conversions are removed too.
 - **Invited access:** Let invited consultants view only their own expenses.
 - **Company isolation:** Protect company records with membership-based permissions.
 
@@ -25,10 +26,10 @@ Splitflow brings consultant salaries, operating expenses and placement revenue t
 | Page | What it helps users do |
 |---|---|
 | **Dashboard** | Review spending, conversion status and recent expenses at a glance. |
-| **Expenses / My expenses** | Manage the company expense ledger and imports, or review personal expenses as a consultant. |
+| **Expenses / My expenses** | Manage expenses and imports, including permitted deletion, or review personal expenses as a consultant. |
 | **Consultants** | Maintain the team, compensation, country assignments and login invitations. |
 | **Countries** | Configure regional reporting currencies. |
-| **Placements** | Record client revenue, consultant attribution and recognition dates. |
+| **Placements** | Add, edit or delete placement revenue records with the appropriate permissions. |
 | **Conversions & exceptions** | Review pending historical conversions and retry unavailable rates. |
 | **Reports & reconciliation** | Compare ROI and inspect regional allocations and conversion records, with paginated tables. |
 | **My account** | View the user profile, select an invited company and manage permitted company settings. |
