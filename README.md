@@ -64,3 +64,4 @@ This repository contains the frontend. The companion backend is maintained in `s
 ## Documentation
 
 - [Product and system architecture](ARCHITECTURE.md)
+- [Website wireframe](docs/WIREFRAME.md) — page guide and editable Canva design.
