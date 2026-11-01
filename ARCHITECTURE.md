@@ -1,6 +1,6 @@
-﻿# Splitflow: Product and System Architecture
+# Splitflow: Product and System Architecture
 
-Updated: 26 October 2026
+Updated: 2 November 2026
 
 ## 1. Product purpose
 
@@ -25,7 +25,7 @@ The intended outcome is a consistent basis for staffing, budgeting and regional 
 
 Access belongs to a company membership. An administrator in one company does not receive access to another company's records.
 
-Consultant invitations use the email stored by an administrator on the consultant record. After authentication and email verification, the user selects from companies that invited that email. Registration alone does not grant company access. Changing or removing an invitation revokes the previous consultant link.
+Consultant invitations use the email stored by an administrator on the consultant record. After authentication and email verification, the user selects from companies that invited that email. Verified users without a company can instead create their own workspace and become its administrator. Registration alone does not grant access to an existing company. Changing or removing an invitation revokes the previous consultant link.
 
 ## 3. Product structure
 
@@ -129,16 +129,22 @@ Company access is enforced in both the API and database. Business records carry 
 
 ## 7. Delivery status and next priorities
 
-Company isolation, salary-inclusive reporting, regional conversion, configurable home currency, report filters and pagination are implemented. The updated backend has been deployed to Railway. Invitation-based consultant access is implemented in the database and application code and has passed authenticated local API checks; production validation is the remaining release step.
+Company isolation, salary-inclusive ROI, regional conversion, company home-currency reporting, filters, pagination and permitted expense/placement deletion are implemented. The latest additions provide CSV exports, an audit-log workspace and company creation for verified users without a company. These additions require frontend and backend deployment before they appear on the live website.
 
-The latest recorded frontend build and 53 backend tests passed. Database checks covered company isolation, invitation acceptance, unauthorized joining, consultant restrictions and access revocation. The deployed health and database readiness endpoints both returned HTTP 200. The public invitation capability endpoint, /api/v1/auth/config, returned HTTP 401 rather than its expected configuration response. This must be resolved or confirmed against the intended release before automatic invitation discovery can be considered verified. Full signed-in browser verification remains a release check.
+Finance can export complete ROI results for the selected filters, country allocations and conversion reconciliation. Exports retain incomplete-data indicators and protect spreadsheet cells against formula interpretation. The export covers the full returned report rather than the visible table page.
+
+Database audit logging records future changes with the actor, time and before/after values. History remains available after source records are deleted. Administrators and Finance can review their own company's log; consultants and viewers cannot. Historical activity from before logging was enabled is not reconstructed.
+
+Pending conversions have a durable retry schedule with database leases, crash recovery and increasing delays after failures. A server worker or scheduled job processes due records and records system activity in the audit log. Activating the worker requires server-only credentials and deployment configuration; ordinary API requests continue to use the caller's access token.
+
+Both repositories have automated checks. The backend runs lint and tests on pushes and pull requests, including an isolated empty-database rebuild and access-control checks. Release automation currently operates independently of CI results; mandatory passing release checks remain an operational improvement.
 
 The next priorities are:
 
-1. **Complete production access verification:** Confirm the public invitation configuration endpoint and verify company selection and consultant restrictions through the deployed website.
+1. **Verify the deployed workflows:** Test self-service company creation, consultant invitations, CSV exports and audit visibility through the deployed website. Enable scheduled retries with the server-only worker configuration.
 2. **Improve financial completeness:** Add agreed allocation rules for shared costs and richer compensation components.
-3. **Strengthen operational reliability:** Introduce durable background conversion processing with scheduled retries.
-4. **Introduce reporting governance:** Add review and approval stages, adjustments, closed periods and reproducible report snapshots.
-5. **Expand reporting flexibility:** Support fiscal calendars, exports and more complete membership administration.
+3. **Introduce reporting governance:** Add approvals, adjustments, closed periods and reproducible report snapshots.
+4. **Strengthen release controls:** Gate deployments on passing checks and monitor worker failures and audit retention.
+5. **Expand reporting flexibility:** Support fiscal calendars and more complete membership administration.
 
-Current reports are live calculations rather than locked accounting statements. These priorities extend that foundation toward a more governed finance and performance-management product.
+Current reports are live calculations rather than locked accounting statements. These priorities extend the foundation toward a more governed finance and performance-management product.

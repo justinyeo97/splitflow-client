@@ -123,6 +123,15 @@ export function AuthProvider({ children }) {
     setProfile(profile);
   }
 
+  async function createCompany(name, homeCurrency) {
+    await apiRequest("auth/create-company", {
+      method: "POST",
+      token: session.access_token,
+      body: { name: name.trim(), home_currency: homeCurrency },
+    });
+    setProfile(await loadProfile(session.access_token));
+  }
+
   async function signIn(email, password) {
     const result = await apiRequest("auth/login", {
       method: "POST",
@@ -185,6 +194,7 @@ export function AuthProvider({ children }) {
       invitationsEnabled:
         invitationConfig || Boolean(profile?.invitations_enabled),
       joinCompany,
+      createCompany,
       refreshProfile,
       saveCompany,
       saveCompanySettings,

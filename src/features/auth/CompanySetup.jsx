@@ -3,6 +3,7 @@ import { apiRequest } from "../../api/client.js";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "./AuthProvider.jsx";
+import { expenseCurrencies } from "../operations/operationsUi.jsx";
 
 export default function CompanySetup({ embedded = false }) {
   const { invitationsEnabled, profile } = useAuth();
@@ -73,7 +74,8 @@ function LegacyCompanySetup() {
 }
 
 function InvitedCompanySetup({ embedded }) {
-  const { session, joinCompany, signOut, user } = useAuth();
+  const { session, joinCompany, createCompany, profile, signOut, user } =
+    useAuth();
   const navigate = useNavigate();
   const [companies, setCompanies] = useState([]);
   const [selected, setSelected] = useState("");
@@ -81,6 +83,22 @@ function InvitedCompanySetup({ embedded }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [reload, setReload] = useState(0);
+  const [creating, setCreating] = useState(false);
+  const [companyName, setCompanyName] = useState("");
+  const [homeCurrency, setHomeCurrency] = useState("USD");
+  async function create(event) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await createCompany(companyName, homeCurrency);
+      navigate("/", { replace: true });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
   useEffect(() => {
     let current = true;
     setLoading(true);
@@ -162,6 +180,62 @@ function InvitedCompanySetup({ embedded }) {
                 " to your consultant record."
               : "Verify your email, then sign in again to view your invitations."}
           </p>
+        )}
+        {profile?.role === "unassigned" && (
+          <>
+            <button
+              type="button"
+              className="secondary-button"
+              disabled={busy}
+              onClick={() => setCreating((value) => !value)}
+            >
+              {creating ? "Hide company creation" : "Create my own company"}
+            </button>
+            {creating && (
+              <form className="auth-form" onSubmit={create}>
+                <p className="auth-intro">
+                  Create a separate workspace. You will be its administrator and
+                  can invite consultants.
+                </p>
+                <label>
+                  Company name
+                  <input
+                    required
+                    maxLength={200}
+                    autoComplete="organization"
+                    value={companyName}
+                    onChange={(event) => setCompanyName(event.target.value)}
+                  />
+                </label>
+                <label>
+                  Home currency
+                  <select
+                    value={homeCurrency}
+                    onChange={(event) => setHomeCurrency(event.target.value)}
+                  >
+                    {expenseCurrencies.map((code) => (
+                      <option key={code} value={code}>
+                        {code}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {!user?.email_confirmed_at && (
+                  <p className="auth-intro">
+                    Verify your email before creating a company.
+                  </p>
+                )}
+                <button
+                  className="primary-button"
+                  disabled={
+                    busy || !companyName.trim() || !user?.email_confirmed_at
+                  }
+                >
+                  {busy ? "Creating..." : "Create company"}
+                </button>
+              </form>
+            )}
+          </>
         )}
         <button
           className="text-button"

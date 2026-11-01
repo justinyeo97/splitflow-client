@@ -60,7 +60,12 @@ export default function AppShell() {
       <nav className="workspace-nav" aria-label="Main navigation">
         {(profile?.role === "consultant"
           ? [["My expenses", "/expenses", "01"]]
-          : links
+          : [
+              ...links,
+              ...(["administrator", "finance"].includes(profile?.role)
+                ? [["Audit log", "/audit-log", "08"]]
+                : []),
+            ]
         ).map(([label, path, number]) => (
           <NavLink
             key={path}

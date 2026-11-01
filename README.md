@@ -13,7 +13,11 @@ Splitflow brings consultant salaries, operating expenses and placement revenue t
 ## Core features
 
 - **ROI reporting:** Compare consultant, country and company performance by period.
+- **CSV exports:** Download filtered ROI, country allocations and conversion reconciliation.
+- **Audit log:** Admins and Finance can review who changed records, including deletions.
+- **Company creation:** Verified users without a company can create a workspace as its admin.
 - **Automatic conversion:** Allocate expenses in regional currencies using historical rates.
+- **Scheduled retries:** The backend can retry pending conversions with durable leases and backoff.
 - **Headquarters consolidation:** Report revenue and costs in the company's home currency.
 - **Consultant management:** Track roles, salaries, employment and country assignments.
 - **Expense entry and imports:** Add expenses individually or upload CSV files.

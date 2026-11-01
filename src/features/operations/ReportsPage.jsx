@@ -1,4 +1,5 @@
 import PaginatedTable from "./PaginatedTable.jsx";
+import ExportCsvButton from "../../components/ExportCsvButton.jsx";
 import { useEffect, useState } from "react";
 import { apiRequest } from "../../api/client.js";
 import { ErrorState, LoadingState } from "../../components/States.jsx";
@@ -127,6 +128,20 @@ export default function ReportsPage() {
       <RoiReport refreshKey={reload} />
       <Panel
         title="Country expense allocations"
+        action={
+          <ExportCsvButton
+            filename="country-allocations.csv"
+            rows={country.data?.data}
+            disabled={country.loading || Boolean(country.error)}
+            columns={[
+              ["Country", "country"],
+              ["Currency", "currency"],
+              ["Finalized total", "total"],
+              ["Converted expenses", "expense_count"],
+              ["Unconverted", "unconverted_count"],
+            ]}
+          />
+        }
         detail="Finalized expenses in each country's reporting currency; all dates"
       >
         {country.error ? (
@@ -164,6 +179,23 @@ export default function ReportsPage() {
       </Panel>
       <Panel
         title="Conversion reconciliation"
+        action={
+          <ExportCsvButton
+            filename="conversion-reconciliation.csv"
+            rows={reconciliation.data?.data}
+            disabled={reconciliation.loading || Boolean(reconciliation.error)}
+            columns={[
+              ["Conversion ID", "id"],
+              ["Expense ID", "expense_id"],
+              ["Status", "status"],
+              ["Target currency", "target_currency"],
+              ["Rate", "applied_rate"],
+              ["Converted amount", "converted_amount"],
+              ["Requested date", "requested_date"],
+              ["Effective rate date", "effective_rate_date"],
+            ]}
+          />
+        }
         detail="Conversion status and source expense; all dates"
       >
         {reconciliation.error ? (

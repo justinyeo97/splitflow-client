@@ -1,4 +1,5 @@
 import PaginatedTable from "./PaginatedTable.jsx";
+import ExportCsvButton from "../../components/ExportCsvButton.jsx";
 import { useAuth } from "../auth/AuthProvider.jsx";
 import { useEffect, useState } from "react";
 import { apiRequest } from "../../api/client.js";
@@ -130,13 +131,38 @@ export default function RoiReport({ refreshKey = 0 }) {
       }
       detail={"Revenue, costs and profit in " + reportCurrency}
       action={
-        <button
-          className="secondary-action"
-          disabled={loading}
-          onClick={() => setReload((value) => value + 1)}
-        >
-          Refresh ROI
-        </button>
+        <div className="expense-toolbar">
+          <ExportCsvButton
+            filename={`roi-${groupBy}-${period}.csv`}
+            rows={rows}
+            disabled={loading || Boolean(error)}
+            columns={[
+              ["Period", "period"],
+              ["Country", "country"],
+              ["Consultant", "consultant"],
+              ["Company", "company"],
+              ["Currency", () => reportCurrency],
+              ["Revenue", "revenue"],
+              ["Operating costs", "operating_costs"],
+              ["Salary costs", "salary_costs"],
+              ["Total costs", "costs"],
+              ["Profit", "profit"],
+              ["ROI (%)", "roi_percent"],
+              ["Placements", "placement_count"],
+              ["Cost per placement", "cost_per_placement"],
+              ["Complete", "complete"],
+              ["Salary included", () => salaryIncluded],
+              ["Salary issues", () => JSON.stringify(salaryIssues)],
+            ]}
+          />
+          <button
+            className="secondary-action"
+            disabled={loading}
+            onClick={() => setReload((value) => value + 1)}
+          >
+            Refresh ROI
+          </button>
+        </div>
       }
     >
       <div className="expense-toolbar roi-filters">

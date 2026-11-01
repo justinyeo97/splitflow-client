@@ -1,5 +1,6 @@
 import ProximityHeading from "./components/ProximityHeading.jsx";
 import CompanySetup from "./features/auth/CompanySetup.jsx";
+import AuditLogPage from "./features/operations/AuditLogPage.jsx";
 import { Navigate, Route, Routes } from "react-router-dom";
 import AppShell from "./layouts/AppShell.jsx";
 import { EmptyState } from "./components/States.jsx";
@@ -42,6 +43,7 @@ function App() {
         <Route element={<AppShell />}>
           <Route path="/companies" element={<CompanySetup embedded />} />
           <Route path="/account" element={<UserPage />} />
+          <Route path="/audit-log" element={<AuditLogPage />} />
           <Route
             path="/imports"
             element={<Navigate to="/expenses?import=1" replace />}
