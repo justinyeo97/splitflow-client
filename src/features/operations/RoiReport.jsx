@@ -1,4 +1,5 @@
 import PaginatedTable from "./PaginatedTable.jsx";
+import RoiAnalysis from "./RoiAnalysis.jsx";
 import ExportCsvButton from "../../components/ExportCsvButton.jsx";
 import { useAuth } from "../auth/AuthProvider.jsx";
 import { useEffect, useState } from "react";
@@ -8,7 +9,7 @@ import { money, useToken, Panel, Table } from "./operationsUi.jsx";
 
 export default function RoiReport({ refreshKey = 0 }) {
   const token = useToken();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const homeCurrency = profile?.company?.home_currency || "USD";
   const [reportCurrency, setReportCurrency] = useState(homeCurrency);
   const [salaryIncluded, setSalaryIncluded] = useState(false);
@@ -44,6 +45,7 @@ export default function RoiReport({ refreshKey = 0 }) {
     };
   }, [token]);
   const [rows, setRows] = useState([]);
+  const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reload, setReload] = useState(0);
@@ -73,6 +75,7 @@ export default function RoiReport({ refreshKey = 0 }) {
       .then((result) => {
         if (current) {
           setRows(result.data);
+          setReport({ ...result, filters: Object.fromEntries(query) });
           setReportCurrency(result.currency || homeCurrency);
           setSalaryIncluded(Boolean(result.salary_included));
           setSalaryIssues(result.salary_issues || []);
@@ -312,6 +315,17 @@ export default function RoiReport({ refreshKey = 0 }) {
           </p>
         </details>
       </aside>
+      {!loading &&
+        !error &&
+        report?.snapshot &&
+        ["administrator", "finance", "viewer"].includes(profile?.role) && (
+          <RoiAnalysis
+            key={`${user?.id}:${profile?.company?.id}:${report.snapshot}`}
+            report={report}
+            token={token}
+            onRefresh={() => setReload((value) => value + 1)}
+          />
+        )}
       {salaryIssues.length > 0 && (
         <div className="inline-error" role="alert">
           Salary information is missing for {salaryIssues.length} consultant(s).

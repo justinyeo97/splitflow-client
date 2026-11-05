@@ -1,0 +1,37 @@
+.roi-analysis {
+  margin: 20px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: var(--wash);
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.roi-analysis-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.roi-analysis h3 { margin: 0; font-size: 15px; }
+.roi-analysis h4 { margin: 18px 0 8px; font-size: 12px; }
+.roi-analysis-heading p { margin: 4px 0; color: var(--muted); }
+.roi-analysis-heading button { flex-shrink: 0; cursor: pointer; }
+.roi-analysis-heading button:disabled { cursor: default; opacity: 0.6; }
+.roi-analysis-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+.roi-analysis ul { padding-left: 18px; }
+.roi-analysis li + li { margin-top: 12px; }
+.roi-analysis li > p { margin-bottom: 5px; }
+.roi-analysis summary { cursor: pointer; color: var(--blue); }
+.roi-analysis-evidence { padding: 12px; margin: 8px 0; border: 1px solid var(--line); }
+.roi-analysis-evidence dl { margin: 6px 0 0; }
+.roi-analysis-evidence dl > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; }
+.roi-analysis-evidence dt { color: var(--muted); }
+.roi-analysis-evidence dd { margin: 0; overflow-wrap: anywhere; }
+.roi-analysis-partial { display: block; color: var(--muted); }
+.roi-analysis-footnote { font-size: 11px; color: var(--muted); margin-bottom: 0; }
+@media (max-width: 700px) {
+  .roi-analysis { margin: 14px; padding: 14px; }
+  .roi-analysis-heading { align-items: flex-start; flex-wrap: wrap; }
+  .roi-analysis-columns { grid-template-columns: 1fr; gap: 0; }
+}
