@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { apiRequest } from "../../api/client.js";
 import "./roi-analysis.css";
+import RoiValue from "./RoiValue.jsx";
 
 function groupedNumber(value) {
   const [whole, fraction] = String(value).split(".");
@@ -16,8 +17,8 @@ function Evidence({ fact, currency }) {
       <dl>
         <div><dt>Revenue</dt><dd>{currency} {groupedNumber(fact.revenue)}</dd></div>
         <div><dt>Total costs</dt><dd>{currency} {groupedNumber(fact.costs)}</dd></div>
-        <div><dt>Profit</dt><dd>{fact.profit == null ? "Unavailable" : `${currency} ${groupedNumber(fact.profit)}`}</dd></div>
-        <div><dt>ROI</dt><dd>{fact.roi_percent == null ? "Undefined or incomplete" : `${groupedNumber(fact.roi_percent)}%`}</dd></div>
+        <div><dt>Profit</dt><dd><RoiValue value={fact.profit}>{fact.profit == null ? "Unavailable" : `${currency} ${groupedNumber(fact.profit)}`}</RoiValue></dd></div>
+        <div><dt>ROI</dt><dd><RoiValue value={fact.roi_percent}>{fact.roi_percent == null ? "Undefined or incomplete" : `${groupedNumber(fact.roi_percent)}%`}</RoiValue></dd></div>
         <div><dt>Placements</dt><dd>{groupedNumber(fact.placements)}</dd></div>
       </dl>
     </div>

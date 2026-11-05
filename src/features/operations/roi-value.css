@@ -1,0 +1,17 @@
+.roi-value {
+  font-variant-numeric: tabular-nums;
+}
+.roi-value--positive {
+  color: #167044;
+  font-weight: 700;
+}
+.roi-value--negative {
+  color: #bc3038;
+  font-weight: 700;
+}
+[data-theme="dark"] .roi-value--positive {
+  color: #7ce0a8;
+}
+[data-theme="dark"] .roi-value--negative {
+  color: #ff9da4;
+}

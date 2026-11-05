@@ -1,5 +1,6 @@
 import PaginatedTable from "./PaginatedTable.jsx";
 import RoiAnalysis from "./RoiAnalysis.jsx";
+import RoiValue from "./RoiValue.jsx";
 import ExportCsvButton from "../../components/ExportCsvButton.jsx";
 import { useAuth } from "../auth/AuthProvider.jsx";
 import { useEffect, useState } from "react";
@@ -390,8 +391,16 @@ export default function RoiReport({ refreshKey = 0 }) {
                 {salaryIncluded ? money(row.salary_costs) : "Not included"}
               </td>
               <td>{money(row.costs)}</td>
-              <td>{row.profit == null ? "—" : money(row.profit)}</td>
-              <td>{row.roi_percent == null ? "—" : `${row.roi_percent}%`}</td>
+              <td>
+                <RoiValue value={row.profit}>
+                  {row.profit == null ? "—" : money(row.profit)}
+                </RoiValue>
+              </td>
+              <td>
+                <RoiValue value={row.roi_percent}>
+                  {row.roi_percent == null ? "—" : `${row.roi_percent}%`}
+                </RoiValue>
+              </td>
               <td>{row.placement_count}</td>
               <td>
                 {row.cost_per_placement == null
