@@ -2,17 +2,23 @@ import { useEffect, useRef, useState } from "react";
 import { apiRequest } from "../../api/client.js";
 import "./roi-analysis.css";
 
+function groupedNumber(value) {
+  const [whole, fraction] = String(value).split(".");
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return fraction === undefined ? grouped : `${grouped}.${fraction}`;
+}
+
 function Evidence({ fact, currency }) {
   return (
     <div className="roi-analysis-evidence">
       <strong>{fact.label}</strong>
       {!fact.complete && <span className="roi-analysis-partial">Incomplete data; totals may be partial</span>}
       <dl>
-        <div><dt>Revenue</dt><dd>{currency} {fact.revenue}</dd></div>
-        <div><dt>Total costs</dt><dd>{currency} {fact.costs}</dd></div>
-        <div><dt>Profit</dt><dd>{fact.profit == null ? "Unavailable" : `${currency} ${fact.profit}`}</dd></div>
-        <div><dt>ROI</dt><dd>{fact.roi_percent == null ? "Undefined or incomplete" : `${fact.roi_percent}%`}</dd></div>
-        <div><dt>Placements</dt><dd>{fact.placements}</dd></div>
+        <div><dt>Revenue</dt><dd>{currency} {groupedNumber(fact.revenue)}</dd></div>
+        <div><dt>Total costs</dt><dd>{currency} {groupedNumber(fact.costs)}</dd></div>
+        <div><dt>Profit</dt><dd>{fact.profit == null ? "Unavailable" : `${currency} ${groupedNumber(fact.profit)}`}</dd></div>
+        <div><dt>ROI</dt><dd>{fact.roi_percent == null ? "Undefined or incomplete" : `${groupedNumber(fact.roi_percent)}%`}</dd></div>
+        <div><dt>Placements</dt><dd>{groupedNumber(fact.placements)}</dd></div>
       </dl>
     </div>
   );
