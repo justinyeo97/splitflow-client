@@ -1,4 +1,5 @@
 import ProximityHeading from "../components/ProximityHeading.jsx";
+import ThemeToggle from "../components/ThemeToggle.jsx";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthProvider.jsx";
 
@@ -55,6 +56,7 @@ export default function AppShell() {
           <button className="signout-button" onClick={signOut}>
             Sign out <span aria-hidden="true">↗</span>
           </button>
+          <ThemeToggle />
         </div>
       </header>
       <nav className="workspace-nav" aria-label="Main navigation">

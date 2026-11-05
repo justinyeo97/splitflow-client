@@ -1,4 +1,5 @@
 import ProximityHeading from "../../components/ProximityHeading.jsx";
+import ThemeToggle from "../../components/ThemeToggle.jsx";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider.jsx";
@@ -54,6 +55,7 @@ export default function SignInPage() {
 
   return (
     <main className="auth-page">
+      <ThemeToggle />
       <div className="auth-panel">
         <a className="brand auth-brand" href="/">
           <span className="brand-mark">S</span>
